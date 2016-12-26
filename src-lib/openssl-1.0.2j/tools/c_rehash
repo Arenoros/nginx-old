@@ -3,8 +3,8 @@
 # Perl c_rehash script, scan all files in a directory
 # and add symbolic links to their hash values.
 
-my $dir = "/home/dan/nginx/openssl-1.0.2j/.openssl/ssl";
-my $prefix = "/home/dan/nginx/openssl-1.0.2j/.openssl";
+my $dir = "/home/dan/nginx-cross/lib/QNX/arm/openssl";
+my $prefix = "/home/dan/nginx-cross/lib/QNX/arm/openssl";
 
 my $openssl = $ENV{OPENSSL} || "openssl";
 my $pwd;
