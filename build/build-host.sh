@@ -1,5 +1,5 @@
 #!/bin/bash
 
-./configure --without-http_rewrite_module --without-http_gzip_module
+auto/configure --prefix=nginx --add-module=modules/nginx-let-module --with-pcre
 
 make -j8

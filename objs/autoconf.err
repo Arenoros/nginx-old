@@ -1,0 +1,919 @@
+
+
+----------------------------------------
+checking for C compiler
+
+
+----------------------------------------
+checking for gcc -pipe switch
+
+
+----------------------------------------
+checking for --with-ld-opt="-lsocket"
+
+
+----------------------------------------
+checking for -Wl,-E switch
+
+
+----------------------------------------
+checking for gcc builtin atomic operations
+
+/tmp/ccgGFba8.o: In function `main':
+autotest.c:(.text+0x28): undefined reference to `__sync_bool_compare_and_swap_4'
+autotest.c:(.text+0x50): undefined reference to `__sync_fetch_and_add_4'
+collect2: ld returned 1 exit status
+----------
+
+#include <sys/types.h>
+
+
+
+int main(void) {
+    long  n = 0;
+                      if (!__sync_bool_compare_and_swap(&n, 0, 1))
+                          return 1;
+                      if (__sync_fetch_and_add(&n, 1) != 1)
+                          return 1;
+                      if (n != 2)
+                          return 1;
+                      __sync_synchronize();;
+    return 0;
+}
+
+----------
+arm-unknown-nto-qnx6.5.0-gcc -o objs/autotest objs/autotest.c -lsocket
+----------
+
+----------------------------------------
+checking for C99 variadic macros
+
+
+----------------------------------------
+checking for gcc variadic macros
+
+
+----------------------------------------
+checking for gcc builtin 64 bit byteswap
+
+
+----------------------------------------
+checking for unistd.h
+
+
+----------------------------------------
+checking for inttypes.h
+
+
+----------------------------------------
+checking for limits.h
+
+
+----------------------------------------
+checking for sys/filio.h
+
+objs/autotest.c:3:23: error: sys/filio.h: No such file or directory
+----------
+
+
+#include <sys/filio.h>
+
+int main(void) {
+    return 0;
+}
+
+----------
+arm-unknown-nto-qnx6.5.0-gcc -o objs/autotest objs/autotest.c
+----------
+
+----------------------------------------
+checking for sys/param.h
+
+
+----------------------------------------
+checking for sys/mount.h
+
+
+----------------------------------------
+checking for sys/statvfs.h
+
+
+----------------------------------------
+checking for crypt.h
+
+objs/autotest.c:3:19: error: crypt.h: No such file or directory
+----------
+
+#include <sys/param.h>
+#include <crypt.h>
+
+int main(void) {
+    return 0;
+}
+
+----------
+arm-unknown-nto-qnx6.5.0-gcc -o objs/autotest objs/autotest.c
+----------
+
+----------------------------------------
+checking for poll()
+
+
+----------------------------------------
+checking for /dev/poll
+
+objs/autotest.c:4:25: error: sys/devpoll.h: No such file or directory
+objs/autotest.c: In function 'main':
+objs/autotest.c:7: error: storage size of 'dvp' isn't known
+objs/autotest.c:12: error: 'DP_POLL' undeclared (first use in this function)
+objs/autotest.c:12: error: (Each undeclared identifier is reported only once
+objs/autotest.c:12: error: for each function it appears in.)
+----------
+
+#include <sys/types.h>
+#include <unistd.h>
+#include <sys/devpoll.h>
+
+int main(void) {
+    int  n, dp; struct dvpoll  dvp;
+                  dp = 0;
+                  dvp.dp_fds = NULL;
+                  dvp.dp_nfds = 0;
+                  dvp.dp_timeout = 0;
+                  n = ioctl(dp, DP_POLL, &dvp);
+                  if (n == -1) return 1;
+    return 0;
+}
+
+----------
+arm-unknown-nto-qnx6.5.0-gcc -o objs/autotest objs/autotest.c -lsocket
+----------
+
+----------------------------------------
+checking for kqueue
+
+objs/autotest.c:4:23: error: sys/event.h: No such file or directory
+----------
+
+#include <sys/types.h>
+#include <unistd.h>
+#include <sys/event.h>
+
+int main(void) {
+    (void) kqueue();
+    return 0;
+}
+
+----------
+arm-unknown-nto-qnx6.5.0-gcc -o objs/autotest objs/autotest.c -lsocket
+----------
+
+----------------------------------------
+checking for crypt()
+
+
+----------------------------------------
+checking for F_READAHEAD
+
+objs/autotest.c: In function 'main':
+objs/autotest.c:7: error: 'F_READAHEAD' undeclared (first use in this function)
+objs/autotest.c:7: error: (Each undeclared identifier is reported only once
+objs/autotest.c:7: error: for each function it appears in.)
+----------
+
+#include <sys/types.h>
+#include <unistd.h>
+#include <fcntl.h>
+
+int main(void) {
+    fcntl(0, F_READAHEAD, 1);;
+    return 0;
+}
+
+----------
+arm-unknown-nto-qnx6.5.0-gcc -o objs/autotest objs/autotest.c -lsocket
+----------
+
+----------------------------------------
+checking for posix_fadvise()
+
+
+----------------------------------------
+checking for O_DIRECT
+
+objs/autotest.c: In function 'main':
+objs/autotest.c:7: error: 'O_DIRECT' undeclared (first use in this function)
+objs/autotest.c:7: error: (Each undeclared identifier is reported only once
+objs/autotest.c:7: error: for each function it appears in.)
+----------
+
+#include <sys/types.h>
+#include <unistd.h>
+#include <fcntl.h>
+
+int main(void) {
+    fcntl(0, F_SETFL, O_DIRECT);;
+    return 0;
+}
+
+----------
+arm-unknown-nto-qnx6.5.0-gcc -o objs/autotest objs/autotest.c -lsocket
+----------
+
+----------------------------------------
+checking for F_NOCACHE
+
+objs/autotest.c: In function 'main':
+objs/autotest.c:7: error: 'F_NOCACHE' undeclared (first use in this function)
+objs/autotest.c:7: error: (Each undeclared identifier is reported only once
+objs/autotest.c:7: error: for each function it appears in.)
+----------
+
+#include <sys/types.h>
+#include <unistd.h>
+#include <fcntl.h>
+
+int main(void) {
+    fcntl(0, F_NOCACHE, 1);;
+    return 0;
+}
+
+----------
+arm-unknown-nto-qnx6.5.0-gcc -o objs/autotest objs/autotest.c -lsocket
+----------
+
+----------------------------------------
+checking for directio()
+
+objs/autotest.c:5:41: error: sys/fcntl.h: No such file or directory
+objs/autotest.c: In function 'main':
+objs/autotest.c:8: error: 'DIRECTIO_ON' undeclared (first use in this function)
+objs/autotest.c:8: error: (Each undeclared identifier is reported only once
+objs/autotest.c:8: error: for each function it appears in.)
+----------
+
+#include <sys/types.h>
+#include <unistd.h>
+#include <sys/types.h>
+                  #include <sys/fcntl.h>
+
+int main(void) {
+    directio(0, DIRECTIO_ON);;
+    return 0;
+}
+
+----------
+arm-unknown-nto-qnx6.5.0-gcc -o objs/autotest objs/autotest.c -lsocket
+----------
+
+----------------------------------------
+checking for statfs()
+
+objs/autotest.c: In function 'main':
+objs/autotest.c:9: error: storage size of 'fs' isn't known
+----------
+
+#include <sys/types.h>
+#include <unistd.h>
+#include <sys/param.h>
+                  #include <sys/mount.h>
+                  
+
+int main(void) {
+    struct statfs  fs;
+                  statfs(".", &fs);;
+    return 0;
+}
+
+----------
+arm-unknown-nto-qnx6.5.0-gcc -o objs/autotest objs/autotest.c -lsocket
+----------
+
+----------------------------------------
+checking for statvfs()
+
+
+----------------------------------------
+checking for dlopen()
+
+
+----------------------------------------
+checking for sched_yield()
+
+
+----------------------------------------
+checking for SO_SETFIB
+
+objs/autotest.c: In function 'main':
+objs/autotest.c:7: error: 'SO_SETFIB' undeclared (first use in this function)
+objs/autotest.c:7: error: (Each undeclared identifier is reported only once
+objs/autotest.c:7: error: for each function it appears in.)
+----------
+
+#include <sys/types.h>
+#include <unistd.h>
+#include <sys/socket.h>
+
+int main(void) {
+    setsockopt(0, SOL_SOCKET, SO_SETFIB, NULL, 0);
+    return 0;
+}
+
+----------
+arm-unknown-nto-qnx6.5.0-gcc -o objs/autotest objs/autotest.c -lsocket
+----------
+
+----------------------------------------
+checking for SO_REUSEPORT
+
+
+----------------------------------------
+checking for SO_ACCEPTFILTER
+
+objs/autotest.c: In function 'main':
+objs/autotest.c:7: error: 'SO_ACCEPTFILTER' undeclared (first use in this function)
+objs/autotest.c:7: error: (Each undeclared identifier is reported only once
+objs/autotest.c:7: error: for each function it appears in.)
+----------
+
+#include <sys/types.h>
+#include <unistd.h>
+#include <sys/socket.h>
+
+int main(void) {
+    setsockopt(0, SOL_SOCKET, SO_ACCEPTFILTER, NULL, 0);
+    return 0;
+}
+
+----------
+arm-unknown-nto-qnx6.5.0-gcc -o objs/autotest objs/autotest.c -lsocket
+----------
+
+----------------------------------------
+checking for SO_BINDANY
+
+objs/autotest.c: In function 'main':
+objs/autotest.c:7: error: 'SO_BINDANY' undeclared (first use in this function)
+objs/autotest.c:7: error: (Each undeclared identifier is reported only once
+objs/autotest.c:7: error: for each function it appears in.)
+----------
+
+#include <sys/types.h>
+#include <unistd.h>
+#include <sys/socket.h>
+
+int main(void) {
+    setsockopt(0, SOL_SOCKET, SO_BINDANY, NULL, 0);
+    return 0;
+}
+
+----------
+arm-unknown-nto-qnx6.5.0-gcc -o objs/autotest objs/autotest.c -lsocket
+----------
+
+----------------------------------------
+checking for IP_BIND_ADDRESS_NO_PORT
+
+objs/autotest.c: In function 'main':
+objs/autotest.c:8: error: 'IP_BIND_ADDRESS_NO_PORT' undeclared (first use in this function)
+objs/autotest.c:8: error: (Each undeclared identifier is reported only once
+objs/autotest.c:8: error: for each function it appears in.)
+----------
+
+#include <sys/types.h>
+#include <unistd.h>
+#include <sys/socket.h>
+                  #include <netinet/in.h>
+
+int main(void) {
+    setsockopt(0, IPPROTO_IP, IP_BIND_ADDRESS_NO_PORT, NULL, 0);
+    return 0;
+}
+
+----------
+arm-unknown-nto-qnx6.5.0-gcc -o objs/autotest objs/autotest.c -lsocket
+----------
+
+----------------------------------------
+checking for IP_TRANSPARENT
+
+objs/autotest.c: In function 'main':
+objs/autotest.c:8: error: 'IP_TRANSPARENT' undeclared (first use in this function)
+objs/autotest.c:8: error: (Each undeclared identifier is reported only once
+objs/autotest.c:8: error: for each function it appears in.)
+----------
+
+#include <sys/types.h>
+#include <unistd.h>
+#include <sys/socket.h>
+                  #include <netinet/in.h>
+
+int main(void) {
+    setsockopt(0, IPPROTO_IP, IP_TRANSPARENT, NULL, 0);
+    return 0;
+}
+
+----------
+arm-unknown-nto-qnx6.5.0-gcc -o objs/autotest objs/autotest.c -lsocket
+----------
+
+----------------------------------------
+checking for IP_BINDANY
+
+objs/autotest.c: In function 'main':
+objs/autotest.c:8: error: 'IP_BINDANY' undeclared (first use in this function)
+objs/autotest.c:8: error: (Each undeclared identifier is reported only once
+objs/autotest.c:8: error: for each function it appears in.)
+----------
+
+#include <sys/types.h>
+#include <unistd.h>
+#include <sys/socket.h>
+                  #include <netinet/in.h>
+
+int main(void) {
+    setsockopt(0, IPPROTO_IP, IP_BINDANY, NULL, 0);
+    return 0;
+}
+
+----------
+arm-unknown-nto-qnx6.5.0-gcc -o objs/autotest objs/autotest.c -lsocket
+----------
+
+----------------------------------------
+checking for IP_RECVDSTADDR
+
+
+----------------------------------------
+checking for IP_PKTINFO
+
+objs/autotest.c: In function 'main':
+objs/autotest.c:8: error: 'IP_PKTINFO' undeclared (first use in this function)
+objs/autotest.c:8: error: (Each undeclared identifier is reported only once
+objs/autotest.c:8: error: for each function it appears in.)
+----------
+
+#include <sys/types.h>
+#include <unistd.h>
+#include <sys/socket.h>
+                  #include <netinet/in.h>
+
+int main(void) {
+    setsockopt(0, IPPROTO_IP, IP_PKTINFO, NULL, 0);
+    return 0;
+}
+
+----------
+arm-unknown-nto-qnx6.5.0-gcc -o objs/autotest objs/autotest.c -lsocket
+----------
+
+----------------------------------------
+checking for IPV6_RECVPKTINFO
+
+
+----------------------------------------
+checking for TCP_DEFER_ACCEPT
+
+objs/autotest.c: In function 'main':
+objs/autotest.c:9: error: 'TCP_DEFER_ACCEPT' undeclared (first use in this function)
+objs/autotest.c:9: error: (Each undeclared identifier is reported only once
+objs/autotest.c:9: error: for each function it appears in.)
+----------
+
+#include <sys/types.h>
+#include <unistd.h>
+#include <sys/socket.h>
+                  #include <netinet/in.h>
+                  #include <netinet/tcp.h>
+
+int main(void) {
+    setsockopt(0, IPPROTO_TCP, TCP_DEFER_ACCEPT, NULL, 0);
+    return 0;
+}
+
+----------
+arm-unknown-nto-qnx6.5.0-gcc -o objs/autotest objs/autotest.c -lsocket
+----------
+
+----------------------------------------
+checking for TCP_KEEPIDLE
+
+objs/autotest.c: In function 'main':
+objs/autotest.c:9: error: 'TCP_KEEPIDLE' undeclared (first use in this function)
+objs/autotest.c:9: error: (Each undeclared identifier is reported only once
+objs/autotest.c:9: error: for each function it appears in.)
+objs/autotest.c:10: error: 'TCP_KEEPINTVL' undeclared (first use in this function)
+objs/autotest.c:11: error: 'TCP_KEEPCNT' undeclared (first use in this function)
+----------
+
+#include <sys/types.h>
+#include <unistd.h>
+#include <sys/socket.h>
+                  #include <netinet/in.h>
+                  #include <netinet/tcp.h>
+
+int main(void) {
+    setsockopt(0, IPPROTO_TCP, TCP_KEEPIDLE, NULL, 0);
+                  setsockopt(0, IPPROTO_TCP, TCP_KEEPINTVL, NULL, 0);
+                  setsockopt(0, IPPROTO_TCP, TCP_KEEPCNT, NULL, 0);
+    return 0;
+}
+
+----------
+arm-unknown-nto-qnx6.5.0-gcc -o objs/autotest objs/autotest.c -lsocket
+----------
+
+----------------------------------------
+checking for TCP_FASTOPEN
+
+objs/autotest.c: In function 'main':
+objs/autotest.c:9: error: 'TCP_FASTOPEN' undeclared (first use in this function)
+objs/autotest.c:9: error: (Each undeclared identifier is reported only once
+objs/autotest.c:9: error: for each function it appears in.)
+----------
+
+#include <sys/types.h>
+#include <unistd.h>
+#include <sys/socket.h>
+                  #include <netinet/in.h>
+                  #include <netinet/tcp.h>
+
+int main(void) {
+    setsockopt(0, IPPROTO_TCP, TCP_FASTOPEN, NULL, 0);
+    return 0;
+}
+
+----------
+arm-unknown-nto-qnx6.5.0-gcc -o objs/autotest objs/autotest.c -lsocket
+----------
+
+----------------------------------------
+checking for TCP_INFO
+
+objs/autotest.c: In function 'main':
+objs/autotest.c:9: error: invalid application of 'sizeof' to incomplete type 'struct tcp_info' 
+objs/autotest.c:10: error: storage size of 'ti' isn't known
+objs/autotest.c:15: error: 'TCP_INFO' undeclared (first use in this function)
+objs/autotest.c:15: error: (Each undeclared identifier is reported only once
+objs/autotest.c:15: error: for each function it appears in.)
+----------
+
+#include <sys/types.h>
+#include <unistd.h>
+#include <sys/socket.h>
+                  #include <netinet/in.h>
+                  #include <netinet/tcp.h>
+
+int main(void) {
+    socklen_t optlen = sizeof(struct tcp_info);
+                  struct tcp_info ti;
+                  ti.tcpi_rtt = 0;
+                  ti.tcpi_rttvar = 0;
+                  ti.tcpi_snd_cwnd = 0;
+                  ti.tcpi_rcv_space = 0;
+                  getsockopt(0, IPPROTO_TCP, TCP_INFO, &ti, &optlen);
+    return 0;
+}
+
+----------
+arm-unknown-nto-qnx6.5.0-gcc -o objs/autotest objs/autotest.c -lsocket
+----------
+
+----------------------------------------
+checking for accept4()
+
+objs/autotest.c: In function 'main':
+objs/autotest.c:7: error: 'SOCK_NONBLOCK' undeclared (first use in this function)
+objs/autotest.c:7: error: (Each undeclared identifier is reported only once
+objs/autotest.c:7: error: for each function it appears in.)
+----------
+
+#include <sys/types.h>
+#include <unistd.h>
+#include <sys/socket.h>
+
+int main(void) {
+    accept4(0, NULL, NULL, SOCK_NONBLOCK);
+    return 0;
+}
+
+----------
+arm-unknown-nto-qnx6.5.0-gcc -o objs/autotest objs/autotest.c -lsocket
+----------
+
+----------------------------------------
+checking for eventfd()
+
+objs/autotest.c:4:25: error: sys/eventfd.h: No such file or directory
+----------
+
+#include <sys/types.h>
+#include <unistd.h>
+#include <sys/eventfd.h>
+
+int main(void) {
+    (void) eventfd(0, 0);
+    return 0;
+}
+
+----------
+arm-unknown-nto-qnx6.5.0-gcc -o objs/autotest objs/autotest.c -lsocket
+----------
+
+----------------------------------------
+checking for eventfd() (SYS_eventfd)
+
+objs/autotest.c:4:25: error: sys/syscall.h: No such file or directory
+objs/autotest.c: In function 'main':
+objs/autotest.c:7: error: 'SYS_eventfd' undeclared (first use in this function)
+objs/autotest.c:7: error: (Each undeclared identifier is reported only once
+objs/autotest.c:7: error: for each function it appears in.)
+----------
+
+#include <sys/types.h>
+#include <unistd.h>
+#include <sys/syscall.h>
+
+int main(void) {
+    (void) SYS_eventfd;
+    return 0;
+}
+
+----------
+arm-unknown-nto-qnx6.5.0-gcc -o objs/autotest objs/autotest.c -lsocket
+----------
+
+----------------------------------------
+checking for AF_INET6
+
+
+----------------------------------------
+checking for setproctitle()
+
+/tmp/ccYDYxn5.o: In function `main':
+autotest.c:(.text+0x10): undefined reference to `setproctitle'
+collect2: ld returned 1 exit status
+----------
+
+#include <sys/types.h>
+#include <unistd.h>
+#include <stdlib.h>
+
+int main(void) {
+    setproctitle("test");;
+    return 0;
+}
+
+----------
+arm-unknown-nto-qnx6.5.0-gcc -o objs/autotest objs/autotest.c -lsocket
+----------
+
+----------------------------------------
+checking for pread()
+
+
+----------------------------------------
+checking for pwrite()
+
+
+----------------------------------------
+checking for pwritev()
+
+/tmp/cc8WKpEp.o: In function `main':
+autotest.c:(.text+0x34): undefined reference to `pwritev'
+collect2: ld returned 1 exit status
+----------
+
+#include <sys/types.h>
+#include <unistd.h>
+#include <sys/uio.h>
+
+int main(void) {
+    char buf[1]; struct iovec vec[1]; ssize_t n;
+                  vec[0].iov_base = buf;
+                  vec[0].iov_len = 1;
+                  n = pwritev(1, vec, 1, 0);
+                  if (n == -1) return 1;
+    return 0;
+}
+
+----------
+arm-unknown-nto-qnx6.5.0-gcc -o objs/autotest objs/autotest.c -lsocket
+----------
+
+----------------------------------------
+checking for sys_nerr
+
+
+----------------------------------------
+checking for localtime_r()
+
+
+----------------------------------------
+checking for posix_memalign()
+
+
+----------------------------------------
+checking for memalign()
+
+
+----------------------------------------
+checking for mmap(MAP_ANON|MAP_SHARED)
+
+
+----------------------------------------
+checking for mmap("/dev/zero", MAP_SHARED)
+
+
+----------------------------------------
+checking for System V shared memory
+
+objs/autotest.c:5:39: error: sys/shm.h: No such file or directory
+objs/autotest.c: In function 'main':
+objs/autotest.c:9: error: 'SHM_R' undeclared (first use in this function)
+objs/autotest.c:9: error: (Each undeclared identifier is reported only once
+objs/autotest.c:9: error: for each function it appears in.)
+objs/autotest.c:9: error: 'SHM_W' undeclared (first use in this function)
+----------
+
+#include <sys/types.h>
+#include <unistd.h>
+#include <sys/ipc.h>
+                  #include <sys/shm.h>
+
+int main(void) {
+    int  id;
+                  id = shmget(IPC_PRIVATE, 4096, (SHM_R|SHM_W|IPC_CREAT));
+                  if (id == -1) return 1;
+                  shmctl(id, IPC_RMID, NULL);;
+    return 0;
+}
+
+----------
+arm-unknown-nto-qnx6.5.0-gcc -o objs/autotest objs/autotest.c -lsocket
+----------
+
+----------------------------------------
+checking for POSIX semaphores
+
+
+----------------------------------------
+checking for struct msghdr.msg_control
+
+
+----------------------------------------
+checking for ioctl(FIONBIO)
+
+
+----------------------------------------
+checking for struct tm.tm_gmtoff
+
+
+----------------------------------------
+checking for struct dirent.d_namlen
+
+objs/autotest.c: In function 'main':
+objs/autotest.c:8: error: 'struct dirent' has no member named 'd_namlen'
+objs/autotest.c:9: error: 'struct dirent' has no member named 'd_namlen'
+----------
+
+#include <sys/types.h>
+#include <unistd.h>
+#include <dirent.h>
+                  #include <stdio.h>
+
+int main(void) {
+    struct dirent  dir; dir.d_namlen = 0;
+                  printf("%d", (int) dir.d_namlen);
+    return 0;
+}
+
+----------
+arm-unknown-nto-qnx6.5.0-gcc -o objs/autotest objs/autotest.c -lsocket
+----------
+
+----------------------------------------
+checking for struct dirent.d_type
+
+objs/autotest.c: In function 'main':
+objs/autotest.c:8: error: 'struct dirent' has no member named 'd_type'
+objs/autotest.c:8: error: 'DT_REG' undeclared (first use in this function)
+objs/autotest.c:8: error: (Each undeclared identifier is reported only once
+objs/autotest.c:8: error: for each function it appears in.)
+objs/autotest.c:9: error: 'struct dirent' has no member named 'd_type'
+----------
+
+#include <sys/types.h>
+#include <unistd.h>
+#include <dirent.h>
+                  #include <stdio.h>
+
+int main(void) {
+    struct dirent  dir; dir.d_type = DT_REG;
+                  printf("%d", (int) dir.d_type);
+    return 0;
+}
+
+----------
+arm-unknown-nto-qnx6.5.0-gcc -o objs/autotest objs/autotest.c -lsocket
+----------
+
+----------------------------------------
+checking for sysconf(_SC_NPROCESSORS_ONLN)
+
+
+----------------------------------------
+checking for openat(), fstatat()
+
+objs/autotest.c: In function 'main':
+objs/autotest.c:10: error: 'AT_FDCWD' undeclared (first use in this function)
+objs/autotest.c:10: error: (Each undeclared identifier is reported only once
+objs/autotest.c:10: error: for each function it appears in.)
+objs/autotest.c:10: error: 'O_NOFOLLOW' undeclared (first use in this function)
+objs/autotest.c:11: error: 'AT_SYMLINK_NOFOLLOW' undeclared (first use in this function)
+----------
+
+#include <sys/types.h>
+#include <unistd.h>
+#include <sys/types.h>
+                  #include <sys/stat.h>
+                  #include <fcntl.h>
+
+int main(void) {
+    struct stat sb;
+                  openat(AT_FDCWD, ".", O_RDONLY|O_NOFOLLOW);
+                  fstatat(AT_FDCWD, ".", &sb, AT_SYMLINK_NOFOLLOW);;
+    return 0;
+}
+
+----------
+arm-unknown-nto-qnx6.5.0-gcc -o objs/autotest objs/autotest.c -lsocket
+----------
+
+----------------------------------------
+checking for getaddrinfo()
+
+
+----------------------------------------
+checking for PCRE library
+
+objs/autotest.c:4:18: error: pcre.h: No such file or directory
+objs/autotest.c: In function 'main':
+objs/autotest.c:7: error: 'pcre' undeclared (first use in this function)
+objs/autotest.c:7: error: (Each undeclared identifier is reported only once
+objs/autotest.c:7: error: for each function it appears in.)
+objs/autotest.c:7: error: 're' undeclared (first use in this function)
+----------
+
+#include <sys/types.h>
+#include <unistd.h>
+#include <pcre.h>
+
+int main(void) {
+    pcre *re;
+                          re = pcre_compile(NULL, 0, NULL, 0, NULL);
+                          if (re == NULL) return 1;
+    return 0;
+}
+
+----------
+arm-unknown-nto-qnx6.5.0-gcc -o objs/autotest objs/autotest.c -lsocket -lpcre
+----------
+
+----------------------------------------
+checking for PCRE library in /usr/local/
+
+objs/autotest.c:4:18: error: pcre.h: No such file or directory
+objs/autotest.c: In function 'main':
+objs/autotest.c:7: error: 'pcre' undeclared (first use in this function)
+objs/autotest.c:7: error: (Each undeclared identifier is reported only once
+objs/autotest.c:7: error: for each function it appears in.)
+objs/autotest.c:7: error: 're' undeclared (first use in this function)
+----------
+
+#include <sys/types.h>
+#include <unistd.h>
+#include <pcre.h>
+
+int main(void) {
+    pcre *re;
+                          re = pcre_compile(NULL, 0, NULL, 0, NULL);
+                          if (re == NULL) return 1;
+    return 0;
+}
+
+----------
+arm-unknown-nto-qnx6.5.0-gcc -I /usr/local/include -o objs/autotest objs/autotest.c -lsocket -L/usr/local/lib -lpcre
+----------
+
+----------------------------------------
+checking for PCRE library in lib/QNX/arm/pcre
+
+
+----------------------------------------
+checking for PCRE JIT support
+
+
+----------------------------------------
+checking for zlib library
+
