@@ -55,7 +55,14 @@ else
         ngx_feature_libs="-lz"
         ngx_feature_test="z_stream z; deflate(&z, Z_NO_FLUSH)"
         . auto/feature
+		
+		if [ $ngx_found = no ]; then
+            ngx_feature="ZLIB library in ../lib/$NGX_SYSTEM/$NGX_MACHINE/zlib"
+            ngx_feature_path="../lib/$NGX_SYSTEM/$NGX_MACHINE/zlib"
+            ngx_feature_libs="-lz"
 
+            . auto/feature
+        fi
 
         if [ $ngx_found = yes ]; then
             CORE_LIBS="$CORE_LIBS $ngx_feature_libs"

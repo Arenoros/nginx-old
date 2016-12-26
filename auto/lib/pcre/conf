@@ -107,7 +107,7 @@ else
                           re = pcre_compile(NULL, 0, NULL, 0, NULL);
                           if (re == NULL) return 1"
         . auto/feature
-
+echo $ngx_feature ' = ' $ngx_found "asdsadsadsads"
         if [ $ngx_found = no ]; then
 
             # FreeBSD port
@@ -120,6 +120,17 @@ else
             else
                 ngx_feature_libs="-L/usr/local/lib -lpcre"
             fi
+
+            . auto/feature
+        fi
+		
+		if [ $ngx_found = no ]; then
+
+            ngx_feature="PCRE library in lib/$NGX_SYSTEM/$NGX_MACHINE/pcre"
+			ngx_feature_path="lib/$NGX_SYSTEM/$NGX_MACHINE/pcre/include"
+			echo $PWD/lib/$NGX_SYSTEM/$NGX_MACHINE/pcre
+            ngx_feature_libs="lib/$NGX_SYSTEM/$NGX_MACHINE/pcre/lib"
+            ngx_feature_libs="-lpcre"
 
             . auto/feature
         fi
