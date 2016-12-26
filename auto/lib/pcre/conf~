@@ -128,7 +128,7 @@ echo $ngx_feature ' = ' $ngx_found "asdsadsadsads"
 			pcre_dir="$PWD/lib/$NGX_SYSTEM/$NGX_MACHINE/pcre/"
             ngx_feature="PCRE library in $pcre_dir"
 			
-			ngx_feature_path="$pcre_dir/include"
+			ngx_feature_path="$(pcre_dir)/include"
             ngx_feature_libs="-L/$pcre_dir/lib -lpcre"
             . auto/feature
         fi
