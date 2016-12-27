@@ -23,7 +23,6 @@ if [ "$NGX_PLATFORM" != win32 ]; then
 
 fi
 
-
 if [ "$CC" = cl ]; then
     NGX_CC_NAME=msvc
     echo " + using Microsoft Visual C++ compiler"

@@ -1,0 +1,26 @@
+
+
+----------------------------------------
+checking for PCRE library in /C/Users/Arenoros/Desktop/nginx/lib/win32/x86/pcre/
+
+In file included from objs/autotest.c:4:
+c:/Users/Arenoros/Desktop/nginx/lib/win32/x86/pcre/include\pcre.h:88:10: fatal error: 'stdlib.h' file not found
+#include <stdlib.h>
+         ^
+1 error generated.
+----------
+
+
+
+#include <pcre.h>
+
+int main(void) {
+    pcre *re;
+                          re = pcre_compile(NULL, 0, NULL, 0, NULL);
+                          if (re == NULL) return 1;
+    return 0;
+}
+
+----------
+clang -pipe -DFD_SETSIZE=1024 -I /C/Users/Arenoros/Desktop/nginx/lib/win32/x86/pcre//include -o objs/autotest objs/autotest.c -L//C/Users/Arenoros/Desktop/nginx/lib/win32/x86/pcre//lib -lpcre
+----------

@@ -35,11 +35,9 @@ ngx_long_regex_cont=$ngx_regex_cont
 ngx_long_cont=$ngx_cont
 
 . auto/cc/name
-
 if test -n "$CFLAGS"; then
-
+	
     CC_TEST_FLAGS="$CFLAGS $NGX_CC_OPT"
-
     case $NGX_CC_NAME in
 
         ccc)
@@ -77,7 +75,6 @@ if test -n "$CFLAGS"; then
     esac
 
 else
-
     case $NGX_CC_NAME in
         gcc)
             # gcc 2.7.2.3, 2.8.1, 2.95.4, egcs-1.1.2
@@ -89,7 +86,7 @@ else
 
         clang)
             # Clang C compiler
-
+		
             . auto/cc/clang
         ;;
 
