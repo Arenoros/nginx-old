@@ -29,7 +29,6 @@ case "$NGX_CC_NAME" in
 
 esac
 
-
 if [ -n "$ngx_makefile" ]; then
 
     cat << END                                                >> $NGX_MAKEFILE

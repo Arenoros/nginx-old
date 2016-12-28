@@ -83,7 +83,7 @@ CFLAGS="$CFLAGS $CPU_OPT"
 CFLAGS="$CFLAGS -W4"
 
 # stop on warning
-CFLAGS="$CFLAGS -WX"
+#CFLAGS="$CFLAGS -WX"
 
 # disable logo
 CFLAGS="$CFLAGS -nologo"
