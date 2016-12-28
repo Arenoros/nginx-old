@@ -9,7 +9,7 @@
 #define NGX_LTYPE_OPERATION 3
 #define NGX_LTYPE_FUNCTION  4
 #define NGX_LTYPE_CAPTURE   5
-
+#define ngx_log_debug(...)
 struct ngx_let_node_s {
 	
 	ngx_int_t type;
