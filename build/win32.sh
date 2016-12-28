@@ -1,0 +1,19 @@
+auto/configure --with-cc=cl \
+--builddir=objs --prefix= \
+--conf-path=conf/nginx.conf \
+--pid-path=logs/nginx.pid \
+--http-log-path=logs/access.log \
+--error-log-path=logs/error.log \
+--sbin-path=nginx.exe \
+--http-client-body-temp-path=temp/client_body_temp \
+--http-proxy-temp-path=temp/proxy_temp \
+--http-fastcgi-temp-path=temp/fastcgi_temp \
+--with-cc-opt=-DFD_SETSIZE=1024 \
+--with-select_module \
+--with-openssl=src-lib/openssl \
+--with-http_v2_module \
+--with-http_ssl_module \
+--with-zlib=src-lib/zlib-1.2.8 \
+--with-pcre=src-lib/pcre-8.39 \
+--with-pcre-jit \
+--add-module=modules/nginx-let-module

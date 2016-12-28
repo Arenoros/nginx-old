@@ -38,8 +38,6 @@ if test -z "$NGX_PLATFORM"; then
     case "$NGX_SYSTEM" in
         MINGW32_*)
             NGX_PLATFORM=win32
-			NGX_SYSTEM=win32
-            NGX_MACHINE=x86
         ;;
     esac
 
