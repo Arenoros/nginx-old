@@ -24,7 +24,7 @@ if test -n "$ngx_feature_path"; then
         ngx_feature_inc_path="$ngx_feature_inc_path -I $ngx_temp"
     done
 fi
-SYS_TYPES = ""
+SYS_TYPES=
 if [ "$NGX_PLATFORM" != win32 ]; then
 	SYS_TYPES="#include <sys/types.h>"
 fi

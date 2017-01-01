@@ -59,6 +59,10 @@ else
             NGX_SYSTEM=Linux
             NGX_MACHINE=arm
         ;;
+		QNX:*:x86)
+            NGX_SYSTEM=QNX
+            NGX_MACHINE=atom
+        ;;
     esac
 fi
 
