@@ -53,7 +53,7 @@ else
     if [ "$NGX_PLATFORM" != win32 ]; then
 
         OPENSSL=NO
-
+		ngx_found=no
         ngx_feature="OpenSSL library"
         ngx_feature_name="NGX_OPENSSL"
         ngx_feature_run=no
@@ -61,6 +61,17 @@ else
         ngx_feature_path=
         ngx_feature_libs="-lssl -lcrypto $NGX_LIBDL"
         ngx_feature_test="SSL_CTX_set_options(NULL, 0)"
+
+		feature_dir="$PWD/lib/$NGX_SYSTEM/$NGX_MACHINE/openssl/"
+		if [ -d "$feature_dir" ]; then
+            ngx_feature="OpenSSL library in $feature_dir"
+			
+			ngx_feature_path="$feature_dir/include"
+            ngx_feature_libs="-L/$feature_dir/lib $ngx_feature_libs"
+			if [ $NGX_RPATH = YES ]; then
+                ngx_feature_libs="-R/$openssl_dir/lib $ngx_feature_libs"
+            fi
+		fi
         . auto/feature
 
         if [ $ngx_found = no ]; then
@@ -90,20 +101,6 @@ else
                 ngx_feature_libs="-R/usr/pkg/lib -L/usr/pkg/lib -lssl -lcrypto $NGX_LIBDL"
             else
                 ngx_feature_libs="-L/usr/pkg/lib -lssl -lcrypto $NGX_LIBDL"
-            fi
-
-            . auto/feature
-        fi
-
-		if [ $ngx_found = no ]; then
-			openssl_dir="$PWD/lib/$NGX_SYSTEM/$NGX_MACHINE/openssl/"
-            ngx_feature="OpenSSL library in $openssl_dir"
-            ngx_feature_path=$openssl_dir/include
-			
-            if [ $NGX_RPATH = YES ]; then
-                ngx_feature_libs="-R/$openssl_dir/lib -L/$openssl_dir/lib -lssl -lcrypto $NGX_LIBDL"
-            else
-                ngx_feature_libs="-L/$openssl_dir/lib -lssl -lcrypto $NGX_LIBDL"
             fi
 
             . auto/feature

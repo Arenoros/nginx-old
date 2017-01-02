@@ -156,6 +156,13 @@ install:	build $NGX_INSTALL_PERL_MODULES
 
 	test -d '\$(DESTDIR)$NGX_PREFIX/html' \\
 		|| cp -R $NGX_HTML '\$(DESTDIR)$NGX_PREFIX'
+
+	test -f '\$(DESTDIR)$NGX_CONF_PREFIX/nginx-mplc.conf' \\
+		|| cp conf/nginx-mplc.conf '\$(DESTDIR)$NGX_CONF_PREFIX'
+	test -f '\$(DESTDIR)$NGX_CONF_PREFIX/server.crt' \\
+		|| cp conf/server.crt '\$(DESTDIR)$NGX_CONF_PREFIX'
+	test -f '\$(DESTDIR)$NGX_CONF_PREFIX/server.key' \\
+		|| cp conf/server.key '\$(DESTDIR)$NGX_CONF_PREFIX'
 END
 
 
