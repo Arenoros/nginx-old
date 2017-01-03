@@ -1,0 +1,19 @@
+# entropy gathering commands
+# AT&T NCR MP-RAS system, contributed by Daniel Carroll <dan@mesastate.edu>
+
+# Format is: "program-name args" path rate 
+# The "rate" represents the number of bits of usuable entropy per 
+# byte of command output. Be conservative.
+
+"ls -alni /var/adm" /usr/bin/ls 0.02
+"ls -alni /proc" /usr/bin/ls 0.02
+"ls -alni /tmp" /usr/bin/ls 0.02
+"ls -alni /var/tmp" /usr/bin/ls 0.01
+"netstat -an" /usr/bin/netstat 0.05
+"ps -efl" /usr/bin/ps 0.03
+"w" /usr/ucb/w 0.01
+"who -a" /usr/bin/who 0.01
+"last -100" /usr/bin/last 0.01
+"df -t" /usr/bin/df 0.01
+"tail -200 /etc/.osm" /usr/bin/tail 0.01
+

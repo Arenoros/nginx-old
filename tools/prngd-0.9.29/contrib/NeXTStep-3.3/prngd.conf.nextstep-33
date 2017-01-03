@@ -1,0 +1,36 @@
+# entropy gathering commands
+# Nextstep 3.3, contributed by Michael Weiser <michael@weiser.saale-net.de>
+
+# Format is: "program-name args" path rate
+
+# The "rate" represents the number of bits of usuable entropy per 
+# byte of command output. Be conservative.
+
+"ls -alni /private/adm" /bin/ls 0.02
+"ls -alni /private/tmp" /bin/ls 0.02
+"ls -alni /private/adm/messages" /bin/ls 0.02
+
+"netstat -an" /usr/ucb/netstat 0.05
+"netstat -in" /usr/ucb/netstat 0.05
+"netstat -rn" /usr/ucb/netstat 0.02
+"netstat -s" /usr/ucb/netstat 0.02
+
+"arp -a" /usr/etc/arp 0.02
+
+"ifconfig -a" /etc/ifconfig 0.02
+
+"ps laxww" /bin/ps 0.03
+"ps -al" /bin/ps 0.03
+
+"w" /usr/ucb/w 0.05
+
+"who" /bin/who 0.01
+
+"last" /usr/ucb/last 0.01
+
+"df" /bin/df 0.01
+"df -i" /bin/df 0.01
+
+"tail -200 /private/adm/messages" /usr/ucb/tail 0.01
+"tail -200 /private/adm/lookupd.log" /usr/ucb/tail 0.01
+

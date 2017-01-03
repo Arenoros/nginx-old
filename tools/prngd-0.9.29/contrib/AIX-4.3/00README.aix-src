@@ -1,0 +1,68 @@
+Using 'prngd' With the AIX System Resource Controller (SRC)
+===========================================================
+
+The AIX System Resource Controller is a meta-daemon that lets you start
+and stop other daemons locally or remotely, tell them to reload
+configuration files, etc.  It is accessed via the commands:
+
+  startsrc -s {subsys}		start a service
+  stopsrc -s {subsys}		stop a service
+  lssrc -s {subsys}		see if a service is running
+  refresh -s {subsys}		tell service to reload configuration
+
+Each subsystem is in a group.  You can operate on a whole group at once
+using '-g {group}' instead of '-s {subsys}'.
+
+To create a subsystem for prngd, I use the following:
+
+  mkssys -s prngd -p /usr/opt/sbin/prngd -a '-f /tmp/entropy' \
+         -u 0 -S -n 15 -f 9 -R -G local
+
+The flags mean:
+
+  -s prngd	subsystem name
+  -p /usr/...	path to binary
+  -a '...'	command line arguments
+  -u 0		run as root
+  -S -n 15 -f 9	use signals for control: 15 for stop, 9 for force stop
+  -R		restart if it dies abnormally
+  -G local	group name
+
+To remove the subsystem:
+
+  rmssys -s prngd
+
+Note the group name -- this is arbitrary but I use 'local' for all
+locally-installed SRC services.  That makes them easy to start on boot
+(see below) and easy to keep track of later.
+
+Note also that the command line must have '-f' in it, which tells prngd
+not to daemonise itself.  SRC subsystems must run in the foreground so
+the SRC can keep track of them, and do not need to do other daemonising
+stuff either.  (Free clue for those wanting to use OpenSSH with prngd:
+to run sshd as an SRC subsystem, pass it '-F' for the same reason.)
+
+
+Now... how to start it on boot?  I do the following.  First, I have a
+file /etc/rc.local:
+
+  #!/bin/sh
+  #
+  # rc.local: start local services
+  # This used to be simply 'startsrc -g local'
+  # but prngd must come before sshd.
+  
+  startsrc -s prngd
+  for sub in $(lssrc -g local | sed '1d; /prngd/d; s/    .*//'); do
+    startsrc -s $sub
+  done
+
+It must be executable.  Then I add a line to /etc/inittab:
+
+  local:2:wait:/etc/rc.local > /dev/console 2>&1
+
+That's it.
+
+Peter Samuelson
+<peter@cadcamlab.org>
+27 Jun 2002

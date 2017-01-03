@@ -1,0 +1,30 @@
+# entropy gathering commands
+
+# Format is: "program-name args" path rate
+
+# The "rate" represents the number of bits of usuable entropy per
+# byte of command output. Be conservative.
+
+"ls -alni /usr/adm" /bin/ls 0.02
+"ls -alni /usr/mail" /bin/ls 0.02
+"ls -alni /proc" /bin/ls 0.02
+"ls -alni /tmp" /bin/ls 0.02
+
+"netstat -an" /usr/ucb/netstat 0.05
+"netstat -in" /usr/ucb/netstat 0.05
+"netstat -rn" /usr/ucb/netstat 0.02
+"netstat -s" /usr/ucb/netstat 0.02
+
+"arp -a -n" /etc/arp 0.02
+
+"ps -al" /bin/ps 0.03
+"ps -efl" /bin/ps 0.03
+
+"who -l" /bin/who 0.01
+
+"last" /usr/ucb/last 0.01
+
+"df" /bin/df 0.01
+"df -k" /bin/df 0.01
+
+"ipcs -a" /usr/bin/ipcs 0.01

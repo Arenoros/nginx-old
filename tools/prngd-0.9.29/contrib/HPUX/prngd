@@ -1,0 +1,24 @@
+# PRNGD_START:		Set to 1 to start PRNGD
+# PRNGD_ARGS:		Command line arguments to pass to PRNGD
+# PRNGD_LOG:		PRNGD stdout and stderr log file
+#			(default /var/opt/prngd/prngd.log)
+#
+# To configure the PRNGD environment:
+
+# groupadd prngd
+# useradd -g prngd
+# mkdir -p /etc/opt/prngd
+# chmod 755 /etc/opt/prngd
+# mkdir -p /var/opt/prngd
+# chown prngd:prngd /var/opt/prngd
+# chmod 755 /var/opt/prngd
+# cp prngd.conf /etc/opt/prngd
+# chmod 644 /etc/opt/prngd/prngd.conf
+#
+# Note: prngd's config and seed file locations can be set either at compile
+# time as described in the README or at runtime using PRNGD_ARGS
+
+PRNGD_START=1
+#PRNGD_SOCKETS=
+PRNGD_ARGS="-c /etc/opt/prngd/prngd.conf -s /var/opt/prngd/prngd-seed"
+#PRNGD_LOG=

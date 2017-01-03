@@ -1,0 +1,56 @@
+README for PRNGD HP-UX rc scripts
+Kevin Steves <kevin.steves@pobox.com>
+
+prngd:		configuration file for prngd.rc
+prngd.rc:	PRNGD startup script
+
+Please read 00README from the PRNGD distribution for instructions on
+installing PRNGD; this README covers a recommended runtime and startup
+configuration for HP-UX.
+
+o Verify prngd path in prngd.rc matches your local installation.
+  WHAT_PATH is set to /opt/local/bin/prngd; you will need to change
+  this if your prngd executable is installed in a different location.  
+
+o Customize prngd configuration file if needed (PRNGD_ARGS and
+  PRNGD_LOG)
+
+o Add pseudo account:
+
+  # groupadd prngd
+  # useradd -g prngd prngd
+
+o Setup directories:
+
+  # mkdir /etc/opt/prngd
+  # chmod 755 /etc/opt/prngd
+  # mkdir /var/opt/prngd
+  # chown prngd:prngd /var/opt/prngd
+  # chmod 755 /var/opt/prngd
+
+NOTE: here we assume the following changes in config.h:
+#define RANDSAVENAME	"/var/opt/prngd/prngd-seed"
+#define CONFIGFILE	"/etc/opt/prngd/prngd.conf"
+Alternatively, PRNGD_ARGS can be used at runtime as proposed in the prngd
+configuration script.
+
+  # cp prngd.conf.hpux-10 /etc/opt/prngd/prngd.conf
+  # chmod 644 /etc/opt/prngd/prngd.conf
+  # touch /var/opt/prngd/prngd-seed
+  # chown prngd:prngd /var/opt/prngd/prngd-seed
+  # chmod 600 /var/opt/prngd/prngd-seed
+  # (netstat -s;netstat -an) >/var/opt/prngd/prngd-seed
+  # ln -s /var/opt/prngd/egd-pool /var/run/egd-pool
+
+o Install rc scripts:
+
+  # cp prngd /etc/rc.config.d
+  # chmod 444 /etc/rc.config.d/prngd
+  # cp prngd.rc /sbin/init.d
+  # chmod 555 /sbin/init.d/prngd.rc
+  # ln -s /sbin/init.d/prngd.rc /sbin/rc1.d/K600prngd
+  # ln -s /sbin/init.d/prngd.rc /sbin/rc2.d/S400prngd
+
+o Start PRNGD:
+
+  # /sbin/init.d/prngd.rc start

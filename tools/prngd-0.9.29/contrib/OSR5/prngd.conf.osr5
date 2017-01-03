@@ -1,0 +1,26 @@
+# entropy gathering commands
+# OpenServer 5.0.X server zenez.ca, Boyd Lynn Gerber <gerberb@zenez.com>
+
+# Format is: "program-name args" path rate 
+# The "rate" represents the number of bits of usuable entropy per 
+# byte of command output. Be conservative.
+
+"ls -alni /var/adm" /bin/ls 0.02
+"ls -alni /var/spool/mail/" /bin/ls 0.02
+"ls -alni /tmp" /bin/ls 0.02
+"netstat -an" /usr/bin/netstat 0.05
+"netstat -in" /usr/bin/netstat 0.05
+"netstat -rn" /usr/bin/netstat 0.02
+"netstat -s" /usr/bin/netstat 0.02
+"arp -a -n" /etc/arp 0.02
+"ifconfig -a" /etc/ifconfig 0.02
+"ps -al" /bin/ps 0.03
+"ps -efl" /bin/ps 0.03
+"w" /usr/bin/w 0.05
+"who -a" /bin/who 0.01
+"last" /usr/bin/last 0.01
+"df" /bin/df 0.01
+"sar" /usr/bin/sar 0.01
+"uptime" /usr/bin/uptime 0.01
+"ipcs -a" /bin/ipcs 0.01
+"tail -200 /var/adm/syslog" /bin/tail 0.02

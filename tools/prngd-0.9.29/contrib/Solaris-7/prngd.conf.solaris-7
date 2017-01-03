@@ -1,0 +1,49 @@
+# entropy gathering commands
+# Solaris 7, contributed by Steve VanDevender <stevev@darkwing.uoregon.edu>
+
+# Format is: "program-name args" path rate 
+# The "rate" represents the number of bits of usuable entropy per 
+# byte of command output. Be conservative.
+
+"ls -alni /var/log" /usr/bin/ls 0.02
+"ls -alni /var/adm" /usr/bin/ls 0.02
+"ls -alni /proc" /usr/bin/ls 0.02
+"ls -alni /tmp" /usr/bin/ls 0.02
+"ls -alni /var/tmp" /usr/bin/ls 0.02
+"netstat -anv" /usr/bin/netstat 0.05
+"netstat -ms" /usr/bin/netstat 0.02
+"ps -efly" /usr/bin/ps 0.03
+"w" /usr/bin/w 0.05
+"who -a" /usr/bin/who 0.01
+"last -100" /usr/bin/last 0.01
+"df -a" /usr/bin/df 0.01
+"vmstat -s" /usr/bin/vmstat 0.01
+"tail -200 /var/log/syslog" /usr/bin/tail 0.01
+
+# Comments from Steve VanDevender for the difference to the Solaris 2.6 file:
+#
+# As a small contribution, here's the list of commands I'm using in
+# prngd.conf on our Solaris 7 systems.  I removed the "netstat -rn", "arp
+# -a -n", and "ifconfig -a" commands because in the absence of dynamic
+# routing none of those commands produce changing output over time.
+# Similarly, it seems to me that "ipcs -a" output doesn't change much over
+# time on our systems, so I removed it too.  "ps -al" produces very
+# limited output, so I removed it in favor of "ps -efly" (the 'y' includes
+# the run set size of processes in the output for a little more real
+# entropy).  "vmstat -s" produces more output with more changing
+# statistics than plain "vmstat".  On large systems with frequent user
+# logins, "last" can take a long time to run, and most of its output is
+# all the same, so I use "last -100" instead to look at only the most
+# recent 100 logins.
+#
+# These should be mostly system-neutral; I also added a few commands that
+# probably only work in our environment:
+
+# "tail -200 /var/log/debug" /usr/bin/tail 0.01
+# "tail -200 /var/www/logs/access_log" /usr/bin/tail 0.01
+# "finger @darkwing.uoregon.edu" /usr/bin/finger 0.01
+# "finger @gladstone.uoregon.edu" /usr/bin/finger 0.01
+
+# In particular, for some of our less-used systems, the "finger" commands
+# help obtain a little entropy from system-external sources.
+

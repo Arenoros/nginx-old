@@ -1,0 +1,14 @@
+# entropy gathering commands
+# OpenUNIX 8.0.0 server zenez.com
+
+# Format is: "program-name args" path rate 
+# The "rate" represents the number of bits of usuable entropy per 
+# byte of command output. Be conservative.
+
+"ls -alni /proc" /usr/bin/ls 0.02
+"ls -alni /tmp" /usr/bin/ls 0.02
+"netstat -an" /usr/bin/netstat 0.05
+"netstat -in" /usr/bin/netstat 0.05
+"netstat -rn" /usr/bin/netstat 0.02
+"netstat -s" /usr/bin/netstat 0.02
+

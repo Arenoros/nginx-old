@@ -1,0 +1,53 @@
+# entropy gathering commands
+# provided for PRNGD by Bernhard Simon <simon@zid.tuwien.ac.at>
+
+# Format is: "program-name args" path rate
+
+# The "rate" represents the number of bits of usuable entropy per 
+# byte of command output. Be conservative.
+#
+# $Id: prngd.conf.ultrix,v 1.2 2002/05/17 11:12:47 jaenicke Exp $
+
+"ls -alni /var/adm"			/bin/ls	0.02
+"ls -alni /var/spool/mail"		/bin/ls	0.02
+"ls -alni /tmp"				/bin/ls	0.02
+"ls -alni /var/tmp"			/bin/ls	0.02
+"ls -alni /var/spool/mqueue"		/bin/ls	0.02
+
+"netstat -an"				/usr/ucb/netstat	0.05
+"netstat -in"				/usr/ucb/netstat	0.05
+"netstat -rn"				/usr/ucb/netstat	0.02
+"netstat -ia"				/usr/ucb/netstat	0.05
+"netstat -s"				/usr/ucb/netstat	0.02
+"netstat -is"				/usr/ucb/netstat	0.07
+"netstat -m"				/usr/ucb/netstat	0.02
+
+"arp -a"				/usr/etc/arp	0.02
+
+#"ifconfig -a"				/bin/ifconfig	0.02
+
+"ps laxww"				/bin/ps	0.03
+"ps -al"				/bin/ps	0.03
+"ps -efl"				/bin/ps	0.03
+"jstat"					undef	0.07
+
+"w"					/usr/ucb/w	0.05
+
+"who"					/usr/bin/who	0.01
+
+"last"					/usr/ucb/last	0.01
+
+"lastlog"				undef	0.01
+
+"df"					/usr/bin/df	0.01
+"df -i"					/usr/bin/df	0.01
+
+"sar -d"				undef	0.04
+
+"vmstat"				/usr/ucb/vmstat	0.01
+"vmstat -s"				/usr/ucb/vmstat	0.01
+"uptime"				/usr/ucb/uptime	0.01
+
+"ipcs -a"				/usr/bin/ipcs	0.01
+
+"tail -200 /var/spool/mqueue/syslog"	/usr/ucb/tail	0.01

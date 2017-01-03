@@ -1,0 +1,58 @@
+README for PRNGD at SCO Open Server 5.0.2
+David Leska <leska@nspiv.cz>
+
+prngd.rc:	PRNGD startup script
+prngd.conf      configuration file
+
+Please read 00README from the PRNGD distribution for instructions on
+installing PRNGD; this README covers a recommended runtime and startup
+configuration for SCO Open Server.
+
+o Verify, that paths in prngd.rc match your desired configuration.
+  I configured prndg to be put in the /usr/local/prngd directory, with
+  subdirectories structure: var - contains log, lock, seed and socket file
+  bin - contains this rc script and prngd binary, etc - is symbolic link
+  to /etc/prngd.d which contains prngd.conf.
+
+o Add pseudo account:
+
+  # groupadd prngd
+  # useradd -g prngd prngd
+
+o Setup directories:
+
+  # mkdir /etc/prngd.d
+  # chmod 755 /etc/prngd.d
+  # mkdir /usr/local/prngd
+  # mkdir /usr/local/prngd/bin
+  # mkdir /usr/local/prngd/var
+  # chown prngd:prngd /usr/local/prngd/var
+  # chmod -R 755 /var/opt/prngd
+  # ln -s /etc/prngd.d /usr/local/prngd/etc
+
+NOTE: here we assume the following in Makefile:
+
+DEFS=-DRANDSAVENAME=\"/usr/local/prngd/var/prngd-seed\" \
+-DCONFIGFILE=\"/usr/local/prngd/etc/prngd.conf\"
+
+  # compile source: make
+  # strip prngd
+  # cp prngd /usr/local/prngd/bin
+  # cp contrib/OSR5/prngd.conf.osr5 /etc/prngd.d
+  # chmod 644 /etc/prngd.d/prngd.conf
+  # touch /usr/local/prngd/var/prngd-seed 
+  # chown prngd:prngd /usr/local/prngd/var/prngd-seed
+  # chmod 600 /usr/local/prngd/var/prngd-seed
+  # (netstat -s;netstat -an) >/usr/local/prngd/var/prngd-seed
+
+o Install rc scripts:
+
+  # cp contrib/OSR5/prngd.rc.osr5 /usr/local/prngd/bin/prngd.rc
+  # chmod 755 /usr/local/prngd/bin/prngd.rc
+  # ln -s /usr/local/prngd/bin/prngd.rc /etc/init.d/prngd
+  # /etc/init.d/prngd enable
+
+o Start PRNGD:
+
+  # /etc/init.d/prngd start
+

@@ -1,0 +1,25 @@
+# entropy gathering commands
+# MacOS X 10.0.x, contributed by Atsushi Kobayashi <loudear@a3.ctktv.ne.jp>
+
+# Format is: "program-name args" path rate 
+# The "rate" represents the number of bits of usuable entropy per 
+# byte of command output. Be conservative.
+
+"ls -alni /private/var/log" /usr/bin/ls 0.02
+"ls -alni /private/var/db" /usr/bin/ls 0.02
+"ls -alni /private/etc" /usr/bin/ls 0.02
+"ls -alni /private/tmp" /usr/bin/ls 0.02
+"ls -alni /private/var/tmp" /usr/bin/ls 0.02
+"netstat -an" /usr/sbin/netstat 0.05
+"netstat -in" /usr/sbin/netstat 0.05
+"netstat -rn" /usr/sbin/netstat 0.05
+"netstat -s" /usr/sbin/netstat 0.02
+"ps -laxww" /bin/ps 0.03
+"ps -al" /bin/ps 0.03
+
+"w" /usr/bin/w 0.05
+"who" /usr/bin/who 0.01
+"last -100" /usr/bin/last 0.01
+"df -a" /bin/df 0.01
+"tail -200 /var/log/system.log" /usr/bin/tail 0.01
+

@@ -1,9 +1,9 @@
-prefix=/home/dan/nginx/openssl-1.0.2j/.openssl
+prefix=/home/dan/nginx/lib/QNX/tmp/openssl
 exec_prefix=${prefix}
 libdir=${exec_prefix}/lib
 includedir=${prefix}/include
 
 Name: OpenSSL
 Description: Secure Sockets Layer and cryptography libraries and tools
-Version: 1.0.2j
+Version: 1.1.0d-dev
 Requires: libssl libcrypto

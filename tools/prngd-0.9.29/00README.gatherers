@@ -1,0 +1,123 @@
+Gatherer processes should provide output that is hard to guess from
+an attacker.
+This can probably best achieve by statistical output from several commands
+(df, netstat, etc). The data printed will change rapidly and as the precise
+moment of gathering is not known for an attacker, it will be hard/impossible
+to obtain the same information. (Without a tracer you won't know when
+which command was run. If an can attach a tracer to prngd he already has
+won... :-)
+Other entropy sources are the contents of scratch directories. Whenever
+an editor file is opened, a mailbox is handled or whatever, scratchfiles
+will come and go and timestamps will change.
+Finally, the logfiles of the system are of interest, especially if a lot
+of logging is done.
+
+The example prngd.config files in the contrib/ tree have been provided by
+users. I only have access to a small amount of the platforms, so I cannot
+test the contributions. Therefore the quality of the entropy sources may
+be of varying quality. Later contributors could get ideas from earlier
+ports and add their own ideas that have not been backported. Therefore,
+please add your own 2 cent worth.
+
+As an example on how to improve gatherers, I have collected several
+messages with hints (not yet) included in the example files:
+
+----------------------------------------------------------------------
+
+From: Larry Parmelee <parmelee@CS.Cornell.EDU>
+Date: Fri, 4 May 2001 12:26:18 -0400 (EDT)
+Message-Id: <200105041626.f44GQIQ03318@cloyd.cs.cornell.edu>
+To: Lutz.Jaenicke@aet.TU-Cottbus.DE
+Subject: prngd-0.9.16 - more solaris entropy sources.
+
+As a minor contribution, here's some additional entropy
+sources that should be good for use on Solaris 2.6 through 8,
+and some general comments on the other contrib-provided
+suggestions for Solaris.
+
+-Larry Parmelee
+parmelee@cs.cornell.edu
+
+
+"ndd /dev/arp arp_cache_report" /usr/sbin/ndd 0.02
+"ndd /dev/ip ip_ipc_status" /usr/sbin/ndd 0.02
+"ndd /dev/tcp tcp_conn_hash" /usr/sbin/ndd 0.03
+# 	You may need to be running as root for some of
+# 	these.  "ndd" extracts info from the low level
+# 	drivers.  The above commands look at some pretty
+# 	active tables.  But watch out, the "arp_cache_report"
+# 	one produces output very similar to the output
+# 	from  "arp -a".  The "tcp_conn_hash" is pretty good,
+#	includes sequence numbers (which are supposed to be
+#	random to begin with) from all currently active TCP
+#	connections.
+
+"sadc" /usr/lib/sa/sadc 0.10
+# 	This is part of Sun's "system activity report package".
+# 	It reads a bunch of internal kernal counters, dumps them
+# 	as binary output, so it's fairly dense, and pretty
+# 	dynamic on an active system.
+
+"ntpq -pn" /usr/sbin/ntpq 0.02
+# 	If you run a Network Time Protocol daemon on your
+# 	machine, this can get some interesting bits if it
+# 	isn't used too frequently. (This should work on more than
+# 	just Suns.)
+
+"vmstat -i" /usr/bin/vmstat 0.01
+# 	Interupt counts from clock, network interface.
+
+# "df" commands in general:
+# 	I prefer to use a "-l" option on the df commands, so
+# 	they only report on a machine's local filesystems.  It
+# 	would be nice to include the remote filesystems too, but
+# 	I've seen "df" command hang un-killable (not even "kill -KILL"
+# 	works) when a remote server goes down unexpectedly.  
+# 	Using "-l" avoids that problem.
+
+"df -lg" /usr/bin/df 0.01
+# 	"-g" Gets more info than plain df.  Number of files, number
+#	of free file slots, blocks free, blocks available, etc
+
+# "ls" commands in general:
+"ls -alni /var/tmp/." /usr/bin/ls 0.02
+"ls -alni /var/log/." /usr/bin/ls 0.02
+"ls -alni /tmp/." /usr/bin/ls 0.02
+# 	Beware of paths: /tmp, /var/tmp, /var/log, etc 
+# 	that may be symlinks.  If they are a symlink, the
+# 	the output will be constant.  Instead, use paths that
+# 	end with "/.":  /tmp/.  /var/tmp/.   /var/log/.
+# 	That gets past any symlink to the real directory.
+
+----------------------------------------------------------------------
+
+From: Steve VanDevender <stevev@darkwing.uoregon.edu
+
+# Comments from Steve VanDevender for the difference to the Solaris 2.6 file:
+#
+# As a small contribution, here's the list of commands I'm using in
+# prngd.conf on our Solaris 7 systems.  I removed the "netstat -rn", "arp
+# -a -n", and "ifconfig -a" commands because in the absence of dynamic
+# routing none of those commands produce changing output over time.
+# Similarly, it seems to me that "ipcs -a" output doesn't change much over
+# time on our systems, so I removed it too.  "ps -al" produces very
+# limited output, so I removed it in favor of "ps -efly" (the 'y' includes
+# the run set size of processes in the output for a little more real
+# entropy).  "vmstat -s" produces more output with more changing
+# statistics than plain "vmstat".  On large systems with frequent user
+# logins, "last" can take a long time to run, and most of its output is
+# all the same, so I use "last -100" instead to look at only the most
+# recent 100 logins.
+#
+# These should be mostly system-neutral; I also added a few commands that
+# probably only work in our environment:
+
+# "tail -200 /var/log/debug" /usr/bin/tail 0.01
+# "tail -200 /var/www/logs/access_log" /usr/bin/tail 0.01
+# "finger @darkwing.uoregon.edu" /usr/bin/finger 0.01
+# "finger @gladstone.uoregon.edu" /usr/bin/finger 0.01
+
+# In particular, for some of our less-used systems, the "finger" commands
+# help obtain a little entropy from system-external sources.
+
+----------------------------------------------------------------------

@@ -1,0 +1,14 @@
+add to 10-main.conf
+"QNX6-armle" => {
+		inherit_from     => [ "BASE_unix" ],
+		cc               => "arm-unknown-nto-qnx6.5.0-gcc",
+		ex_libs          => add("-lsocket"),
+		dso_scheme       => "dlfcn",
+		shared_target    => "bsd-gcc-shared",
+		cflags           => "-D__unix -DL_ENDIAN -O3 -ffunction-sections -fdata-sections -funroll-loops",
+		shared_cflag     => "-fPIC",
+		shared_extension => ".so.\$(SHLIB_MAJOR).\$(SHLIB_MINOR)",
+},
+
+-----
+./Configure QNX6-armle no-shared no-threads no-dso no-hw no-asm enable-egd --prefix=/home/dan/nginx/lib/QNX/arm/openssl

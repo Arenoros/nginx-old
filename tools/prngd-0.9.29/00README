@@ -1,0 +1,170 @@
+Overview:
+=========
+- This is the PRNGD "Pseudo Random Number Generator Daemon".
+  It offers an EGD compatible interface to obtain random data and is
+  intended to be used as an entropy source to feed other software,
+  especially software based on OpenSSL.
+- Like EGD it calls system programs to collect entropy.
+- Unlike EGD it does not generate a pool of random bits that can be
+  called from other software.
+  Rather more it feeds the bits gathered into its internal PRNG from which
+  the "random bits" are obtained when requested. This way, PRNGD is
+  never drained and can never block (unlike EGD), so it is also suitable
+  to seed inetd-started programs.
+  It also features a seed-save file, so that it is immediately usable
+  after system start.
+- PRNGD is intended to replace EGD.
+- If you have a UNIX version providing /dev/urandom or /dev/random you
+  probably won't need PRNGD at all.
+
+License:
+========
+- This software is free. You can do with it whatever you want.
+  I would however kindly ask you to acknowledge the use of this
+  package, if you are going use it in your software, which you might
+  be going to distribute. I would also like to receive a note if you
+  are a satisfied user :-)
+
+Disclaimer:
+===========
+- This software is provided ``as is''. You are using it at your own risk.
+  I will take no liability in any case.
+
+Author:
+=======
+- Lutz Jaenicke <Lutz.Jaenicke@aet.TU-Cottbus.DE>
+
+Download:
+=========
+- The latest version of PRNGD can be accessed via
+  http://ftp.aet.TU-Cottbus.DE/personen/jaenicke/postfix_tls/prngd.html
+
+Usage:
+======
+Usage of PRNGD is simple:
+
+- Adjust the Makefile (and config.h) to fit your machine and compile "prngd".
+  Install it at a place you like (e.g. /usr/local/sbin).
+- Generate an /etc/prngd.conf file with commands to gather entropy. The
+  format of the file is taken from the OpenSSH-portable package. See the
+  included examples in the contrib/OS subdirectories _and_ read the
+  file 00README.gatherers.
+- Generate an initial seed by some means. If you already have a real EGD, use
+    egc.pl /path/to/EGD-SOCKET read 255 > /etc/prngd-seed
+    (egc.pl is part of the EGD source package)
+  or cat some logfiles together
+    cat /var/adm/syslog/mail.log /var/adm/syslog/syslog.log > /etc/prngd-seed
+  (prngd will start without initial seed and collect entropy as fast as it
+  can on startup. If you can supply initial seed it is even better.)
+  This step is only relevant before the first start.
+- Start prngd:
+    /usr/local/sbin/prngd /var/run/egd-pool
+  This will create the socket at /var/run/egd-pool for you. If there is
+  already an unused socket, it will be removed automatically in order to
+  put the new one. If another file or directory with this name exists,
+  prngd will stop. prngd needs 'write' permission in the directory within
+  which the socket file-descriptor must be written.
+  You can specify more than one socket, prngd will server all sockets
+  simultaneously from the same pool but (of course) will generate other
+  random bytes for each and every call.
+
+  It might take a moment to read the initial seed, if you provided large
+  files.
+  Use egc.pl (part of the EGD source package) to check that prngd really works:
+    egc.pl /var/run/egd-pool get
+  should yield the entropy in the PRNG pool as estimated by the PRNG.
+  Obtain some random data for test
+    egc.pl /var/run/egd-pool read 255
+  Alternatively the tools/prngd-ctl.c tool might be used for test; please
+  check out the usage instructions in the head of the file.
+
+  Starting with OpenSSL 0.9.7 (not yet released at the time of this writing),
+  the PRNG in the OpenSSL library will automatically query an egd-socket
+  located at
+    /var/run/egd-pool, /dev/egd-pool, or /etc/egd-pool
+  It is therefore recommended to use (one of) these locations, so that
+  programs using these future versions of OpenSSL can obtain their random
+  seed automatically.
+- You can shut down PRNGD cleanly (it will save actual random data back to
+  the seed file) by sending it TERM.
+    prngd --kill /var/run/egd-pool
+  will send TERM for you.
+
+PRNGD supports both UNIX sockets (as shown in the examples) as well as
+TCP sockets (localhost only!). There is no port number registered (yet),
+so pick a free port on your system, e.g. 708 when running with root permissions
+and you want to offer it as a system service, or 4840 without root permissions.
+Both ports are not assigned to any service as of
+  http://www.isi.edu/in-notes/iana/assignments/port-numbers
+To have PRNGD listen on both the Unix socket and TCP do
+  prngd [other options] /var/run/egd-pool tcp/localhost:708 tcp/localhost:4840
+In checking TCP operation with egc.pl I had to list the TCP ports in
+/etc/services;
+prngd		708/tcp		# prngd/EGD system service
+prngd-user	4840/tcp	# prngd/EGD user service
+  egc.pl localhost:prngd get
+PRNGD itself by now only handles numerical port numbers.
+
+egc.pl is part of the EGD package. You already have EGD, don't you??
+Don't miss the original EGD!!!
+  http://www.lothar.com/tech/crypto/
+
+Porting:
+========
+- PRNGD has been developed on HP-UX 10.20 and (SuSE-)Linux. Support for
+  other platforms has been provided by:
+  Solaris 2.6: Louis LeBlanc <leblanc@mirror-image.com>
+  Solaris 7: Phil Howard <phil-openssh-unix-dev@ipal.net>
+  NeXTstep 3: Michael Weiser <michael@weiser.saale-net.de>
+  NeXTstep 3 (HPPA): Jacques Distler <distler@golem.ph.utexas.edu>
+  IRIX 6.5: Michael Weiser <michael@weiser.saale-net.de>
+  Tru64: James Bourne <jbourne@MtRoyal.AB.CA>
+  AIX32: Bernhard Simon <simon@zid.tuwien.ac.at>
+  AIX41: Jim Knoble <jmknoble@pobox.com>
+  AIX43: Joerg Petersen <j.petersen@msh.de> and Peter Samuelson
+	 <peter@cadcamlab.org>
+  AIX51: Rich Holland <holland@guidancetech.com>
+  Unixware 1: Dave Dykstra <dwd@bell-labs.com>
+  Unixware 7: George Walsh <gjmwalsh@netscape.net> and John Hughes
+	      <john@Calva.COM> (The original port from George Walsh produced
+	      "bind(): invalid argument" errors but they don't seem to occur
+	      for John Huges anymore.)
+  SCO OpenServer 5: Boyd Lynn Gerber <gerberb@zenez.com>,
+	      David Leska <leska@nspiv.cz>
+  SCO 3: Gert Doering <gert@greenie.muc.de>
+  OSF1: Daniel Carroll <dan@mesastate.edu>
+  ATT-NCR: Daniel Carroll <dan@mesastate.edu>
+  MacOS-X: KOBAYASHI Atsushi <loudear@is.luvnet.com>
+  OpenUNIX 8: Boyd Lynn Gerber <gerberb@zenez.com>
+  ReliantUNIX (>=5.43): Robert Dahlem <Robert.Dahlem@ffm2.siemens.de>
+  Ultrix V4.5: Bernhard Simon <simon@zid.tuwien.ac.at>
+  Unicos: Marcin Mogielnicki <mar@ghandalf.pism.pl>
+  Tandem Himalay: Simon Goldrei <Simon.Goldrei@webpay.com.au>
+  nsr-tandem-nsk: Bates, Tom" <tom.bates@hp.com>
+  FreeBSD: Bjoern A. Zeeb <bzeeb@zabbadoz.net>
+  Some of the initially contributed patches have been improved by other
+  contributors. I'll have to find another way of acknowledging all of them.
+  Read the ChangeLog to learn about contributors.
+- To port PRNGD to a new platform:
+  * Check out the compiler and flags in Makefile
+  * IMPORTANT: Adjust the path names in config.h, as these files are used to
+    obtain seeding by size and modification/access times very frequently!!
+  * Provide a prngd.conf file. The format is compatible to OpenSSH, so you
+    can use a file created by the OpenSSH install process for you.
+  * Send feedback to me, so that it can be added to the distribution :-)
+
+Acknowledgements:
+=================
+- The above mentioned people spent their time for porting. Please also check
+  out the ChangeLog file, I might have forgotten somebody here :-)
+- Theo de Raadt <deraadt@cvs.openbsd.org> made a lot of excellent suggestions
+  on how to make PRNGD bullet proof with respect to signal handling,
+  number of open file descriptors and, and, and...
+- Scott Hamilton <sah@uow.edu.au> rewrote the error handling and logging
+  after 0.9.7 (and in fact realized parts of Theo's suggestions :-).
+- Thomas Binder <binder@arago.de> provided the prngd-ctl tool.
+
+Todo:
+=====
+- Too long to be listed :-)
+- Engage "autoconf" to make this thing easier to port and configure.

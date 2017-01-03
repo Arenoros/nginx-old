@@ -1,0 +1,106 @@
+#!/bin/sh
+#
+# prndg           This shell script takes care of starting and stopping
+#                 prndg (Pseudo Random Number Generator Daemon).
+#
+# chkconfig: - 55 45
+# description: Pseudo Random Number Generator Daemon
+# Authomatical startup script. Howto install and use it:
+# - configure prngd to have config file in /etc/prngd.d/prngd.conf and seed
+#   in /etc/prngd.d/prngd-seed, compile it and put binary into /usr/local/bin
+# - install prngd.rc.osr5 file as /etc/prngd.d/prngd.rc
+# - run /etc/prngd.d/prngd.rc enable
+# - /etc/prngd.d/prngd.rc along without arguments gives brief help
+#
+
+daemon_user='prngd'
+root_dir="/usr/local/prngd"
+bin_dir="$root_dir/bin"
+sbin_dir="$bin_dir"
+etc_dir="/etc/prngd.d"
+run_dir="$root_dir/var"
+log_dir="$run_dir"
+log_file="$log_dir/prngd.log"
+daemon_file="$sbin_dir/prngd"
+conf_file="$etc_dir/prngd.conf"
+sock_file="$run_dir/prngd-pool"
+lock_file="$run_dir/prngd.lock"
+rc_file="$sbin_dir/prngd.rc"
+srcscript="/etc/rc2.d/S98prngd"
+krcscript="/etc/rc0.d/K87prngd"
+add_path="$bin_dir"
+
+# environment check
+[ -f "$daemon_file" ] || exit 0
+
+[ -f "$conf_file" ] || exit 0
+
+if echo "$PATH" | fgrep -q "$add_path"
+then
+  echo -n
+else
+  PATH="$add_path:$PATH"
+  export PATH
+fi
+
+RETVAL=0
+
+# See how we were called.
+case "$1" in
+  'start')
+    # Start daemons.
+    echo -n "Starting prngd: "
+    if [ -f "$lock_file" ]
+    then
+      echo "Already running, according to lock file: $lock_file"
+      exit 0
+    fi
+    su "$daemon_user" -c "$daemon_file $sock_file" > "$log_file" 2>&1
+    RETVAL=$?
+    if [ "$RETVAL" -eq 0 ]
+    then
+      touch "$lock_file"
+    fi
+    echo
+  ;;
+  'stop')
+    # Stop daemons.
+    echo -n "Shutting down prngd: "
+    if [ ! -f "$lock_file" ]
+    then
+      echo "Not running, no lock file: $lock_file"
+      exit 0
+    fi
+    "$daemon_file" --kill "$sock_file"
+    RETVAL=$?
+    [ $RETVAL -eq 0 ] && rm -f "$lock_file"
+    echo
+  ;;
+  'restart')
+    $0 stop
+    $0 start
+  ;;
+  'enable')
+    if [ -h $srcscript ] ; then
+       echo "prngd is already enabled."
+    else
+       echo "Enabling prngd ... \c"
+       rm -f "$srcscript" "$krcscript"
+       ln -s "$rc_file" $srcscript
+       ln -s "$rc_file" $krcscript
+       echo "Done"
+    fi
+  ;;
+  'disable')
+    echo "Disabling prngd ... \c"
+    rm -f "$srcscript" "$krcscript"
+    echo "Done"
+  ;;
+  *)
+    echo "Usage: prngd.rc {start|stop|restart|enable|disable}"
+    exit 1
+  ;;
+esac
+
+exit $RETVAL
+

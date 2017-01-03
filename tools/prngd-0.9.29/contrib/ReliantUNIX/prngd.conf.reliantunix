@@ -1,0 +1,38 @@
+# entropy gathering commands
+
+# Format is: "program-name args" path rate
+
+# The "rate" represents the number of bits of usuable entropy per 
+# byte of command output. Be conservative.
+#
+# $Id: prngd.conf.reliantunix,v 1.1 2001/08/17 13:35:21 jaenicke Exp $
+
+"ls -alniuL /var/adm" /usr/bin/ls 0.02
+"ls -alniuL /var/adm/log" /usr/bin/ls 0.02
+"ls -alniuL /var/spool/mail" /usr/bin/ls 0.02
+"ls -alniuL /proc" /usr/bin/ls 0.02
+"ls -alniuL /var/tmp" /usr/bin/ls 0.02
+
+"netstat -an" /usr/bin/netstat 0.05
+"netstat -in" /usr/bin/netstat 0.05
+"netstat -s" /usr/bin/netstat 0.02
+
+"arp -a" /usr/sbin/arp 0.02
+
+"etherstat" /usr/sbin/etherstat 0.02
+
+"ps -efl" /usr/bin/ps 0.03
+
+"last -100" /usr/bin/last 0.01
+
+"df -l" /usr/bin/df 0.01
+
+"uptime" /usr/ucb/uptime 0.01
+
+"vmstat -s" /usr/ucb/vmstat 0.01
+"mpstat" /usr/ucb/mpstat 0.01
+
+"who -a" /usr/bin/who 0.01
+
+"tail -200 /var/adm/log/messages" undef 0.01
+

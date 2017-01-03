@@ -1,0 +1,28 @@
+# entropy gathering commands
+# UNIXWARE 7.1.1 server travelseewise.ca
+
+# Format is: "program-name args" path rate 
+# The "rate" represents the number of bits of usuable entropy per 
+# byte of command output. Be conservative.
+
+"ls -alni /var/adm" /usr/bin/ls 0.02
+"ls -alni /var/mail" /usr/bin/ls 0.02
+"ls -alni /proc" /usr/bin/ls 0.02
+"ls -alni /tmp" /usr/bin/ls 0.02
+"netstat -an" /usr/bin/netstat 0.05
+"netstat -in" /usr/bin/netstat 0.05
+"netstat -rn" /usr/bin/netstat 0.02
+"netstat -s" /usr/bin/netstat 0.02
+"arp -a -n" /usr/sbin/arp 0.02
+"ifconfig -a" /usr/sbin/ifconfig 0.02
+"ps -al" /usr/bin/ps 0.03
+"ps -efl" /usr/bin/ps 0.03
+"w" /usr/bin/w 0.05
+"who -a" /usr/bin/who 0.01
+"last" /usr/bin/last 0.01
+"df" /usr/bin/df 0.01
+"df -a" /usr/ucb/df 0.01
+"sar" /usr/bin/sar 0.01
+"uptime" /usr/bin/uptime 0.01
+"ipcs -a" /usr/bin/ipcs 0.01
+"tail -200 /var/adm/syslog" undef 0.02

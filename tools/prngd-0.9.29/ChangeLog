@@ -1,0 +1,863 @@
+2004/07/12	== Released 0.9.29 ==
+
+2004/07/12
+- Forgot to "cvs add" the NetBSD configuration files which where therefore
+  consequently missing from the distribution tarball.
+  (Reported by Timothy Lee Roden <diro@nixsys.bz>.)
+- "netstat -in" is not identical to "netstat -i -n" on Fedora Core 1 and 2,
+  switch to "netstat -i -n" for contrib/Linux-2/prngd.conf.linux-2.
+  (Proposed by Luigi Iotti <luigi@iotti.biz>.)
+- Added support for nsr-tandem-nsk ("Bates, Tom" <tom.bates@hp.com>).
+
+2004/05/17	== Released 0.9.28 ==
+
+2004/05/17
+- Extension to SCO target: add "-lcA" to SYSLIBS as otherwise __unlink()
+  will be flagged as an unresolved external on SCO 3.2v4.2.
+  (Note: created a separate target as I don't know how compatible this
+  might be.)
+- Fixed prngd-ctl.c: at least on AIX the length of struct sockaddr was
+  wrongly determined: <gedimin@oil.lt>.
+- Fix: if no gatherer is defined do not open the communication pipes, because
+  file descriptors leak otherwise ("Bjoern A. Zeeb" <bzeeb@zabbadoz.net>).
+- Add support for FreeBSD ("Bjoern A. Zeeb" <bzeeb@zabbadoz.net>).
+- Add "seed_counter" additional PRNG stirring proposed by Deron Meranda
+  <dmeranda@medplus.com>.
+- Use reduced logging priority for EPIPE failures when communicating with the
+  requestor: it is an allowed condition for the requestor to disconnect
+  prematurely and is not an error condition for prngd. Proposed by Deron
+  Meranda <dmeranda@medplus.com>.
+
+2004/05/16
+- Bug report from Scott Rochford <Scott_Rochford@DELL.com>: on Solaris 8
+  prngd did hang in a tight loop. Due to "truss" output added in his report
+  the bug could be found: in collect_children() the return value of waitpid()
+  and errno were not correctly correlated: errno must only be evaluated when
+  waitpid() returns -1 but is meaningless when waitpid() returns 0.
+  (Note: a similar bug report came in 6 months before but did not contain
+  enough information to track down the problem.)
+- When failing to execl() a gatherer command, NULL pointers could be passed
+  to snprintf() instead of empty strings if not all command line arguments
+  were used. Found and fix proposed by <marcel-za.bucher@ubs.com>.
+  (Note: as only the forked process failing to start the gatherer would die
+  with a segmentation violation, the log message would be lost and a core
+  dump might result. It would not affect the operation of the main daemon.)
+- contrib/HPUX/prngd: explicitely set config file and seed file location at
+  runtime in case the config.h settings were not modified at compile time.
+  Proposed by "JOHNSON,TED C (HP-USA,ex3)" <ted.johnson@hp.com>.
+
+2003/07/02
+- Avoid sending nonsense (unitialized buffer) to syslog when using
+  "prngd -k". (Found and fixed by Thomas Lotterer <thl@dev.de.cw.com>.)
+
+2002/12/20	== Released 0.9.27 ==
+
+2002/12/20
+- Updates to contrib/AIX-4.3/00README.aix-src (Peter Samuelson
+  <peter@cadcamlab.org>).
+
+2002/12/18
+- Added prngd-ctl tool provided by Thomas Binder <binder@arago.de>.
+- Modified serverloop.c wait_write() behaviour: on failure enforce
+  egd_query[i].state = to_be_error_closed. Later this setting could
+  be changed back to wait_command in case of
+  egd_query[i].yet_processed == egd_query[i].to_process
+  This only made the lock possible, otherwise the connections would have
+  been force closed, as actually intended.
+- Completed support for Unicos (Marcin Mogielnicki <mar@ghandalf.pism.pl>).
+- Initial support for Tandem Himalaya (Simon Goldrei
+  <Simon.Goldrei@webpay.com.au>).
+
+2002/12/17
+- Problem reported and patch supplied by Thomas Binder <binder@arago.de>:
+  When lots of processes query entropy at the same time, the "fairness"
+  change introduced in 0.9.25 could lead to clients being only served with
+  a delay.
+  Reason: in serverloop.c the next client to serv is "i1" as determined from
+    i1 = (prev_location + i) % max_query_old;
+  The client that actually was served however was "i" instead of "i1".
+  If the connection of "i" was not yet ready for "write" state set after
+  getting the entropy, it might block.
+  This problem has not been reported by any other user, though it might also
+  have occured at other sites.
+  Depending on the internal sorting of sockets by fd/slot (number increasing
+  in the sequence of accepted connections, closed connections are
+  removed from the list), connections might appear locked.
+  The entropy served was not provided in the sequence intended. The
+  entropy bytes returned via internal buffer however were consistent
+  with the connection served (buffer[i]) was filled correctly for
+  connection[i]. The problem therefore has no impact on the quality
+  of seeding.
+- Some clarifications in 00README with respect to Licensing (the OpenSSL
+  parts used in early versions are long since gone).
+- Unicos support by Marcin Mogielnicki <mar@ghandalf.pism.pl>.
+
+2002/06/12	== Released 0.9.26 ==
+
+2002/06/10
+- Problem pointed out by Daniel.Schroeter@bundesbank.de: when using GCC with
+  bounds checking, prngd fails in rand.c:248.
+  Analysis: the code is wrong (i running from 0 to num in chunks of
+  SHA_DIGEST_LENGTH):
+     for (j = i; j < num; j++)
+        buf[j] = temp_md[j - i];
+  This code should take bytes from temp_md[] and add them to buf[]. As temp_md[]
+  is of the size SHA_DIGEST_LENGTH, it should however not take (num-i) bytes
+  but at most SHA_DIGEST_LENGTH:
+     for (j = i; (j < num) && (j - i < SHA_DIGEST_LENGTH); j++)
+        buf[j] = temp_md[j - i];
+  This bug is not security relevant, as the temp_md[] is on the stack but it
+  is only read over its bounds. The data read are overwritten inside buf[]
+  during the continuation of the loop over i. The worst thing that could happen
+  would be a segmentation violation, which has however never been reported.
+
+
+2002/05/30	== Released 0.9.25 ==
+
+2002/05/30
+- If the reallocation of memory for the query buffers failed, the count of
+  open file descriptors was not decremented even though the new connection
+  as immediatly closed again. This could lead to an incorrect connection
+  count. (I have never seen this happening and found it by scanning for
+  close() calls.)
+
+2002/05/26
+- Make sure local variables do not shadow global ones (introduced with the
+  pidfile patch).
+
+2002/05/21
+- sprintf() slipped in with the pid-file patch. Use snprintf() instead.
+
+2002/05/17
+- Rearrange main loop for more fairness. After the change for 0.9.24,
+  connections with low file descriptor numbers were preferred when
+  generating random numbers. This is would be mood, if there wouldn't be
+  persistent connections. An established connetion would always have a
+  lower fd number due to the sorting and cleanup, thus it would be
+  preferred during random number generation.
+  Now the new structure will first serve all pending I/O operations, then
+  generate random numbers. rand_bytes() will again only be called once,
+  then the whole main loop will be executed again to satisfy I/O operations.
+  But now the actual position is recorded, so that next time the next
+  slot waiting for random numbers will be satisfied from the PRNG.
+- SCO OpenServer 5 does not have S_ISSOCK(). Reported by
+  Roger Cornelius <racpop@tenzing.org>.
+- Some more AIX cleanup, inspired by Andy Igoshin <ai@vsu.ru>.
+- Add option to specify a pid-file (Ashish Garawikar <ashish@sendmail.com>).
+
+2002/05/16
+- Some more minor adjustments with respect to AIX and Ultrix
+  (Bernhard Simon <simon@zid.tuwien.ac.at>).
+- Remove PID_T_IS_LONG_INT and SIZEOF_IS_LONG_INT, as these are no longer
+  needed since 0.9.15 (Bernhard Simon <simon@zid.tuwien.ac.at>).
+- Add support for AIX 3.2 and Ultrix V4.5 (Bernhard Simon
+  <simon@zid.tuwien.ac.at>).
+- 00README: explain that egc.pl is part of the EGD source package
+  (Martin Mokrejs <mmokrejs@natur.cuni.cz>).
+
+2002/05/15
+- Shut down some warnings on IRIX (Michael Weiser
+  <michael@weiser.saale-net.de>).
+
+2002/03/14
+- Process IDs were incorrectly used with "int" type instead of "pid_t" in
+  serverloop.c:collect_children(). 
+  (Carlo Marcelo Arenas Belon <carenas@chasqui.lared.net.pe>)
+
+2002/03/10	== Released 0.9.24 ==
+
+2002/03/10
+- Support for AIX 4.1.4 added (Jim Knoble <jmknoble@pobox.com>).
+
+2002/03/02
+- Discussion with Walter Steiner <ws@iai.uni-bonn.de> yields: during entropy
+  requests, prngd will not service new connections, so that once the queue
+  for open connection requests is exceeded, new connections will be rejected
+  with connection refused, even though the number of open slots is far from
+  the limit.
+- Restructured the main serverloop, so that new connections are accepted with
+  a higher priority. Only call the PRNG once in a row, so that the time
+  within which new connections have to wait is minimized.
+
+2002/01/25
+- Mid of December 2001: report from Michael Steffens <michael_steffens@hp.com>:
+  prngd creates zombies on HP-UX 11. His investigation shows, that these are
+  left over 'df' and 'arp' processes. Incidently, the same behaviour is
+  reported independently by Michael Coffman <coffman@ftc.agilent.com>
+  only several days later. (Side note: I don't see this myself on HP-UX 10.20.)
+  It seems to happen, that sometimes no SIGCHLD is delivered (or received).
+  Additional calls to waitpid() resolve the problem.
+- Solution: I have rewritten the child handling. The asynchronous SIGCHLD
+  handler now simply catches the signal but doesn't do anything about it.
+  The childs' information is collected using the new collect_children()
+  function which is called in a polling manner during the main loop.
+  (We cannot play with the gatherer's pid. As we kill it with -9 when not
+  terminating as expected and prngd may be running with root permissions,
+  we must not make any mistake. Thus we now handle the PID synchronously
+  inside the loop.)
+  Michael Steffens has the new code running for some time and the problem
+  seems to be solved.
+- Solaris 2.5.1 also has utmpx and wtmpx, so use them instead of wtmp and
+  utmp just like the system tools do (Dan Astoorian <djast@cs.toronto.edu>).
+- Relax socket checks (on some platforms sockets manifest itself as FIFOs):
+  this makes e.g. trouble on Solaris, where later versions do have native
+  socket representation, so that older executables (tuned for FIFO like
+  filesystem entries) did not work any longer. Now prngd is happy with
+  socket _or_ FIFO entry. (Dan Astoorian <djast@cs.toronto.edu>.)
+
+2001/11/14
+- Added manual page based on skeleton provided by Mark <mark@zang.com>.
+  I have decided for the POD format (prngd.pod), so that it is possible to
+  generate a *roff format (prngd.man) and plain text (prngd.cat).
+  Add prngd.pod to the CVS archive and rule for the other formats to Makefile.
+  I will probably provide the other formats in the distribution, as not
+  everybody will have pod2man...
+
+2001/08/17	== Released 0.9.23 ==
+
+2001/08/17
+- Support for ReliantUNIX 5.43 (and higher) from
+  "Robert Dahlem" <Robert.Dahlem@ffm2.siemens.de>.
+
+2001/08/07
+- Fixed incorrect use of "errno" in error_log.c:error_syslog(), should have
+  been the passed "my_errno" instead (patch from Joseph Walton
+  <Joseph.Walton@DPFM.com>).
+- Added prngd start script for Solaris-8 (Joseph Walton
+  <Joseph.Walton@DPFM.com>)
+
+2001/08/06	== Released 0.9.22 ==
+
+2001/08/06
+- Unified NeXTStep3-targets: only use -DNEXTSTEP and always use the
+  compatibility library libopenbsd-compat from the OpenSSH distribution.
+
+2001/08/03
+- Exchanged emails with Michael Fischer <fischer-michael@cs.yale.edu>
+  about a problem with NeXTStep3 on m68k:
+  The seed-file is not always updated as required, as write() seems
+  to fail misteriously when the "-posix" option and libraries are used.
+  Tests give: compiling with -D_POSIX_SOURCE and using libopenbsd-compat,
+  as already used for NeXTStep3 on HPPA and NeXTStep4, solves the problem.
+
+2001/08/02	== Released 0.9.21 ==
+
+2001/08/02
+- Support for OpenUNIX-8 by Boyd Lynn Gerber <gerberb@zenez.com>.
+
+2001/07/27	== Released 0.9.20 ==
+
+2001/07/27
+- HP-UX 11 does have snprintf(), leading to problems when building with
+  bsd-snprintf() and using gcc-3.0. Therefore now HPUX11 should be defined
+  instead of HPUX10 to flag this difference.
+  (Reported by "Karl Bolingbroke" <karl.bolingbroke@flyingj.com>.)
+
+2001/07/13
+- Added Solaris 2.5.1 support (some minor differences to other Solaris
+  versions). Provided by Ross L Richardson <Ross.Richardson@utas.edu.au>.
+
+2001/06/27	== Released 0.9.19 ==
+
+2001/06/27
+- Updated contrib/HPUX/prngd.conf.hpux-10 as suggested by
+  Paul Gear <citecpdg@citec.qld.gov.au>. Some flags and paths fixed
+  to supply more gatherers, new gatherers added.
+  prngd.conf.hpux-10 applies for both HP-UX 10.x and 11.x.
+- HP-UX 10.20: my installations have snprintf() in libc, but no header files
+  and no documentation. Some installations seem to miss the functions
+  (Dave Dykstra <dwd@bell-labs.com>). I am not sure whether these functions
+  were added via a libc patch and whether they are available on all HP-UX 10.x
+  platforms.
+  -> use bsd-snprintf() instead.
+- Add support for Unixware 1 (Dave Dykstra <dwd@bell-labs.com>).
+- On Irix (at least some versions) select() returns with the
+  "errorfds" bit set on the gatherer's fd, when the gatherer has finished
+  and closed the connection. However, at the same time data is still
+  pending to be read by prngd (and is flagged by the readfds bit set).
+  The "errorfds" bit was interpreted as error and the fd immediatly closed
+  without reading the bytes available. Therefore it was possible, that
+  gatherers were started but no entropy obtained.
+  Solution: Reorder the evaluation of the bits returned by select:
+  check the readfds bit first and read data when available.
+  Only when just the errorfds bit is set, interprete the behaviour
+  as error and close the fd. Dave Dykstra <dwd@bell-labs.com>,
+  also experienced on Solaris 8 by Fletcher Mattox <fletcher@cs.utexas.edu>.
+- Added new file 00README.gatherers with some point on setting up the
+  prngd.conf file. Includes contribution from Larry Parmelee
+  <parmelee@CS.Cornell.EDU>. Can probably be extended.
+
+2001/06/26
+- Added "Download" section with the prngd-homepage to 00README to allow
+  finding it :-) Proposed by Paul Theodoropoulos <paul@anastrophe.com>.
+
+2001/06/25	== Released 0.9.18 ==
+* Personal comment:
+  I still have several contributions (skeleton for a manual page, initial
+  autoconf support, ...) in my incoming mailbox. My time is rather limited
+  these days but I hope to find some quiet time to include all the
+  contributions soon.
+  At least I want to get these small fixes out now.
+
+2001/06/25
+- Fix location for the "netstat" binary on Tru64 to be "/usr/sbin"
+  Tom Webster <webster@SSDPDC.LGB.CAL.BOEING.COM>.
+
+2001/06/07
+- SunOS 4 has PATH_SYSLOG "/var/adm/messages" and PATH_MAILLOG
+  "/var/log/syslog" (jnemeth@victoria.tc.ca (John Nemeth).
+- Added support for MacOS X 10 provided by
+  KOBAYASHI Atsushi <loudear@is.luvnet.com>.
+- Reworked prngd.conf and prngd.rc startup script for SCO OpenServer 5
+  provided by David Leska <leska@nspiv.cz>.
+
+2001/05/09	== Released 0.9.17 ==
+
+2001/05/08
+- Fix: during the rewrite of the socket handling (and addition of the
+  TCP-socket support), the "chmod()" of the socket file needed for "--mode"
+  was lost!
+
+2001/04/27	== Released 0.9.16 ==
+
+2001/04/27
+- Created per-OS subdirectories in contrib/ and moved prngd.conf.OS files
+  into the corresponding subdirectories. This way it will be easier to
+  collect per-system contributions and READMEs.
+- Add support for OSF1 and AT&T Unix System V Release 4
+  (NCR MP-RAS 2.x and 3.x) provided by Daniel Carroll <dan@mesastate.edu>.
+- Made some clarifications about the automatic generation of the socket
+  file as proposed by "R. Damian Koziel" <damian@xidak.com>.
+
+2001/04/18
+- Received contribution with startup script for SCO OSR 5 from
+  "Ing. David Leska" <leska@nspiv.cz>.
+  Created contrib/OSR5 to put the script and the 00README.
+
+2001/04/16	== Released 0.9.15 ==
+
+2001/04/16
+- Reformulated atoi/atol call and printf() format strings to always use
+  "%ld" and cast pid_t to (long) in printf() call to remove depencency
+  on PID_T_IS_LONG_INT.
+- Added new directory "contrib/" to put (system dependant) contributions.
+  First entry:
+  * HPUX configuration information to run in unprivileged mode and
+    startup scripts provided by Kevin Steves <kevin.steves@pobox.com>.
+
+2001/03/27
+- Reworded the part about initial seeding in 00README
+  (proposed by Bettina Fink <laura@hydrophil.de>).
+- Fix bug in 00README: prngd is shutdown by TERM since release 0.9.4,
+  HUP is reserved for re-reading the configuration file (not yet
+  implemented).
+
+2001/03/26
+- On Solaris, the PATH_SYSLOG file is "/var/adm/messages" (with trailing "s").
+  Discovered by Bettina Fink <laura@hydrophil.de>.
+
+2001/03/26	== Released 0.9.14 ==
+
+2001/03/25
+- Tracked down the problem reported for NeXTStep 3 (HPPA). It is caused by
+  a bug in the waitpid() emulation in the openbsd-compat library (part of
+  the OpenSSH package). Posted a patch to the openssh-unix-dev mailing list;
+  applied to the CVS tree.
+- While examining: a gatherer process can terminiate normally (with exit,
+  WIFEXITED() is true) or by signal. In the last case, the termination was not
+  caught because WIFSIGNALED() was not taken into account. Fixed.
+
+2001/03/24
+- Updates for socklen_t on IRIX/Solaris 2.6 from Ayamura KIKUCHI
+  <ayamura@ayamura.org>.
+- Received update for AIX 4.3 from Peter Samuelson <peter@cadcamlab.org>:
+  * new flag "-f" to stay in foreground to allow integration into
+    AIX System Resource Controller. 00README.aix-src describes functionality.
+- Made --debug output more verbose: print out process ids to help debugging
+  kill() failures as just reported.
+
+2001/03/22
+- Received message from Jacques Distler <distler@golem.ph.utexas.edu>:
+  He is seeing large amounts of "kill() failed: No such process". There was
+  a race condition that might have caused these messages that has been fixed
+  as of 0.9.8. So far I have only received this report from him on his
+  platform NeXTStep 3 (HPPA).
+
+2001/03/08	== Released 0.9.13 ==
+
+2001/03/08
+- Older versions of TRU64 have snprintf in libdb. Added comment to Makefile.
+  (Reported by Graham Allan <allan@physics.umn.edu>.)
+- Some more updates for SCO3 from Gert Doering <gert@greenie.muc.de>.
+
+2001/03/07
+- The port number for TCP-sockets must be converted with "htons()", as
+  the endianess must be considered.
+  (Found by Gert Doering <gert@greenie.muc.de>.)
+- Worked in support for SCO3, supplied by Gert Doering <gert@greenie.muc.de>.
+- SCO3 doesn't support exceptions on pipes (select() returns error).
+- Compiler flags for Solaris "cc" set from "-O" to "-xO4 -KPIC" to improve
+  performance (Jason M Reid <jason.m.reid@eng.sun.com>).
+- Fixed missing comment '#' at the end of prngd.conf.solaris-7
+  ((Jason M Reid <jason.m.reid@eng.sun.com>).
+
+2001/03/05	== Released 0.9.12 ==
+
+2001/03/05
+- Support for SunOS4 from Shigeki miyu Sugiura <miyu@ky.xaxon.ne.jp>.
+- After accept()ing, mix connection information into the pool. When using
+  a TCP connection, we might find port numbers in it...
+
+2001/03/03
+- More precise distinction between Solaris versions from
+  Ayamura KIKUCHI <ayamura@ayamura.org>.
+
+2001/03/02
+- Fix typo in 00README: use port "708" consistently!
+
+2001/03/02	== Released 0.9.11 ==
+
+2001/03/02
+- Add information about TCP operation to 00README.
+- Fixed some typos in 00DESIGN and 00README (contributed by
+  Kevin Steves <stevesk@sweden.hp.com>).
+- Set SO_REUSEADDR and SO_KEEPALIVE on TCP listener sockets.
+
+2001/03/01
+- If killing daemons with --kill fails for at least one daemon, flag the
+  failure with EXIT_FAILURE exit code. (When starting prngd with several
+  sockets, only one daemon runs and when killing it with the same list
+  of sockets, only the first kill will succeed and the others will fail
+  because the daemon is already dead. This condition is now flagged.)
+  Proposed by Kevin Steves <stevesk@sweden.hp.com>.
+- Move unreached code printing the "No listen socket given, exiting!",
+  so that it is reached again and printed together with the usage option.
+  Spotted by Kevin Steves <stevesk@sweden.hp.com>.
+- When trying to kill a daemon at a location not existant on the file
+  system, prngd will assert() instead of correctly flagging the problem.
+  Spotted by Kevin Steves <stevesk@sweden.hp.com>.
+  (In fact, that was the reason why I put in the assert() at this place,
+  because this should never happened and was a bug in prngd.)
+- Finished rewrite of the startup sequence to handle both UNIX and TCP
+  sockets _and_ make things far more understandable: Moved connect()
+  and listen() setups to seperate tcp_socket.c and unix_socket.c files;
+  restructured check for sockets in use and killing.
+- In error_handlers.c <sys/types.h> is not included before <sys/socket.h>
+  causing trouble on IRIX, where the include is not performed automatically.
+  Experienced by Drew Schaffner <drew@bioeng.ucsd.edu>.
+
+2001/02/28
+- Removed unneeded parameter "sockun" from call to serverloop (relict from
+  old version). Changed "accept()" and variables in serverloop to use
+  the global "struct sockaddr" instead of the specialized "struct sockaddr_un"
+  in preparation to handle TCP sockets.
+- Made prngd.c aware of TCP sockets. By now only binding to localhost addresses
+  is allowed. The syntax is: tcp/localhost:port, so it might be extended
+  in the future to also bind to specified network addresses.
+
+2001/02/27	== Released 0.9.10 ==
+
+2001/02/27
+- One argument of error_error() missing in prngd.c:387 (found by
+  Steve VanDevender <stevev@darkwing.uoregon.edu>). This part of the
+  code is only used for SIZEOF_IS_LONG_INT systems, so I didn't catch
+  it on HP-UX or Linux.
+- Do not use -Wall for Tru64, since this is only valid for gcc
+  (Steve VanDevender).
+- prngd.conf.solaris-7: change "netstat" commands to "-anv" and "-ms"
+  to produce more "entropy" (Steve VanDevender).
+- Tidy up lint warnings in bsd-snprintf.c (Scott Hamilton).
+- Rework configuration for Solaris (socklen_t, snprintf()) based on
+  information from Scott Hamilton and Ayamura Kikuchi.
+
+2001/02/26	== Released 0.9.9 ==
+
+2001/02/26
+- Late versions of IRIX have snprintf(). Patch supplied by "Ayamura Kikuchi"
+  <ayamura@ayamura.org>.
+- When starting PRNGD checks whether a listed socket is already in use.
+  If not (the normal case), shutdown() must fail because not connected.
+  Do not log this as an error. (Unnoted, because it did not appear for
+  me on HP-UX and Linux.) Reported for IRIX by "Ayamura Kikuchi"
+  <ayamura@ayamura.org>.
+
+2001/02/26	== Released 0.9.8 ==
+
+2001/02/26
+- Fix race condition: a gatherer child may finish even before pid=fork()
+  returns, so the sigchild_handler was not prepared yet. Changed handling:
+  sigchild_handler records the process id of the exiting child and the
+  serverloop will then handle gatherer_pid. This is possible, since we
+  never have more than one child at a time.
+- Set HAVE_SNPRINTF for HP-UX, Linux, Tru4, Unixware, SCO 5. For the other
+  OS I could not find out.
+
+2001/02/25
+- Fixed prngd.conf.linux-2 (lastlog line was wrong).
+- Various small changes to the part supplied by Scott Hamilton.
+- Add OpenStep 4.2 configuration from "Ben Lindstrom" <mouring@eviladmin.org>.
+- Made variables changed by the signal handlers "volatile".
+
+2001/02/22
+- Added bsd-snprintf.c from OpenSSH-2.5.1.p1 (not all platforms have a
+  native snprintf()).
+
+2001/02/22 (provided by Scott Hamilton <sah@uow.edu.au>)
+- Added error_handlers.[hc] and error_log.[hc].
+- Made the entire source lint free.
+  (These two entries have been supplied by Scott Hamilton that way.
+  In fact, he rewrote the complete error handling!!!)
+
+2001/02/22	== Released 0.9.7 ==
+
+2001/02/22
+- Change not very clear message "Could not retrieve rand_bytes" to
+  "Info: Random pool not (yet) seeded", so that this message is easier
+  to understand at startup.
+- pid_t on SCO is not "long" int (Boyd Lynn Gerber <gerberb@zenez.com>).
+- Changed type for sockunlen in serverloop.c from int to SOCKLEN_T and
+  #defined SOCKLEN_T to the correct type in config.h to shut up 
+  compiler warnings. (Most, but not all, manufacturers offer suitable
+  online documentation nowerdays...)
+
+2001/02/21
+- Received Solaris 7 prngd.conf file from Steve VanDevender
+  <stevev@darkwing.uoregon.edu>.
+
+2001/02/19
+- Received IRIX updates from Ayamura KIKUCHI <ayamura@ayamura.org>.
+
+2001/02/19	== Released 0.9.6 ==
+
+2001/02/19
+- Added support for SCO OpenServer 5 (provided by Boyd Lynn Gerber
+  <gerberb@zenez.com>).
+
+2001/02/18
+- The return value of "select()" is not evaluated correctly. If select() did
+  return with -1 (e.g. after EINTR), the values of rfds, wfds, and efds
+  are invalid and must not be used. This might also have caused some of
+  the problems reported by "Todd C. Miller" <Todd.Miller@courtesan.com>.
+- Introduce new function "obtain_limit()" (obtain_limit.c) to obtain the
+  maximum number of open file descriptors on startup. From this number and
+  FD_SETSIZE (whichever is smaller) the maximum number of file descriptors
+  used in prngd is set. This way we can never exceed the allowed maximum.
+  (If we would exceed FD_SETSIZE, select() would fail on HP-UX with
+  EINVAL, so we cannot portably exceed FD_SETSIZE.)
+- Do some book-keeping about open file descriptors. Make sure that always
+  some descriptors are left for the re-read of the config file (not yet
+  implemented).
+- Fix some places, where the debugging messages printed to stderr are not
+  protected by "if (debug)". (Since stderr is redirected to /dev/null in
+  daemon(), this is not fatal but far from being elegant.)
+
+2001/02/16	== Released 0.9.5 ==
+
+2001/02/16
+- Report from Ayamura KIKUCHI <ayamura@ayamura.org>:
+  PRNGD does start but not work on IRIX without --debug option.
+- Removed 0.9.4 from website.
+- Correct non_blocking.c: from copying from close_on_exec.c FD_SETFD is
+  used instead of FD_SETFL, resulting in incorrect flag settings.
+- Change check of return values of fcntl(): the manual page explicitly states
+  "-1" as error condition instead of "< 0", so we now also make the precise
+  check.
+
+2001/02/16	== Released 0.9.4 ==
+
+2001/02/14
+- Make sure to include <sys/types.h> before <sys/socket.h> as needed on some
+  OS (SunOS 4.x?), reported by "Todd C. Miller" <Todd.Miller@courtesan.com>.
+- Move switching to non_blocking operation to a seperate non_blocking()
+  function and file.
+- New file sockio.c with "socket_read()" and "socket_write()" wrappers that
+  take care of EINTR and EAGAIN conditions.
+- If a socket must be closed beyond normal behaviour, make a logfile entry.
+
+2001/02/13
+- chmod the prngd socket to 0777, since not all systems (read this: unixware)
+  have this as default. Only then all users can query the daemon.
+  (Proposed by John Hughes <john@Calva.COM.>)
+- Introduce new option -m/--mode to allow overriding the default socket
+  permissions on startup.
+- Clean SIGCHLD handler from calling other functions (that are not able of
+  handling reentrant calls) as suggested by Theo De Raadt
+  <deraadt@cvs.openbsd.org>.
+  The SIGTERM handler is not yet clean.
+- Seperated SIGHUP from SIGTERM. In the long run SIGHUP shall lead to a
+  re-read of the config file, for now it is simply logged and nothing
+  happens.
+
+2001/02/01
+- Include initial syslog() support.
+
+2001/01/31	== Released 0.9.3 ==
+
+2001/01/31
+- Bugfix: in debug mode, prngd could crash with "segmentation violation".
+	  When printing the argument list of an external gatherer command,
+	  the list of arguments is checked for NULL, but the printout was
+	  not terminated after finding NULL and later pointers where not
+	  initialized.
+	  -> initialize all pointers to NULL _and_ stop printing when finding
+	     the first NULL pointer.
+  (Reported by Ayamura KIKUCHI <ayamura@ayamura.org>.)
+  This bug was introduced with printing the gatherer commands in 0.3.2.
+
+2001/01/30
+- New function close_on_exec() and make use of it :-)
+  When fork()ing and then exec()ing the external gatherer processes,
+  file descriptors were leaked to the external gatherers -> fixed.
+  (Suggested by Theo De Raadt <deraadt@cvs.openbsd.org>.)
+- Add file prngd_version.h with version information. New command line switch
+  -v/--version to print version and exit.
+
+
+2001/01/30	== Released 0.9.2 ==
+
+2001/01/29
+- Patches to clean UNIXWARE 7 support from John Hughes <john@Calva.COM>.
+- Fix wrong preprocessor statement for AIX43 (John Hughes <john@Calva.COM>).
+- Patches for NeXTStep 3 on HPPA from Jacques Distler
+  <distler@golem.ph.utexas.edu>.
+
+2001/01/24
+- Exchanged several emails with Theo De Raadt <deraadt@cvs.openbsd.org>
+  (OpenSSH/OpenBSD) about integrating prngd into OpenSSH -> will probably
+  happen.
+- Received several hints from Theo De Raadt with improvements and bug fixes
+  especially but not only for signal handling. It will take some days to
+  work in his comments, the more as my time is actually very limited until
+  next week:
+  * Clean up signal handling (do not use stdio functions in signal handlers
+    and other items).
+  * Check out handling of select() when more connections than FD_SETSIZE
+    are open.
+  * Use setrlimit(), setpriority() to restrict child processes in their
+    resource usage.
+  * Some points more...
+
+2001/01/22	== Released 0.9.1 ==
+
+2001/01/22
+- Add prngd.conf-aix43 and Makefile + config.h entry for AIX 4.3 contributed by
+  "Joerg Petersen" <j.petersen@msh.de>.
+
+2001/01/18	== Released 0.9.0 ==
+* Remark:
+  This version now includes its own PRNG (pseudo random number generator)
+  and can do more or less everything I expect it to do :-)
+  There are only few things open (like choosing the pool_size at startup
+  instead of compilation time), so I call this release 0.9.x as being near
+  to the 1.0.0 release...
+
+2001/01/18
+- Replace "8" with BITS_PER_BYTE which is better understandable :-)
+- memset() to 0 the buffer of returned entropy once the data is delivered
+  to the recipient. (If somebody can access the memory or a core dump he
+  will not find traces left.)
+- Remove the use of the OpenSSL PRNG and include my own PRNG, which is
+  inspired by my experiences with the OpenSSL version and the quite interesting
+  paper (see reference in rand.c) by Peter Gutmann.
+  (This is a small entry in ChangeLog but a severe change in the code :-).
+
+2001/01/17	== Released 0.3.2 ==
+
+2001/01/17
+- Make options consistent. All options now have a short and a long version:
+  -k = --kill, -c = --cmdfile, -s = --seedfile, -d = --debug.
+- New option "-n = --no-seedfile" to allow running without seedfile. No
+  file is read on startup, no data is written back. PRNGD only runs on
+  its gatherers. Make sure to have enough gatherers configured.
+- Make sure gatherers are run continously until enough entropy was returned.
+  Default threshold is 4 times the ENTROPY_NEEDED.
+  (Actually, this will only make complete sense in the upcoming new version
+  0.9.0(?) with its own built-in PRNG and a entropy add/query entropy
+  counter. For now it assures, that we do not solely rely on entropy read
+  back from file but force new gathering until enough seed was collected
+  to fire up the OpenSSL internal PRNG.)
+- Be more informative in debug mode: not only tell that a gatherer was
+  spawned, also inform about the gatherer process (name and arguments).
+- prngd.conf.hpux-10: Do not "tail" a directory. This should have been the
+  file /var/adm/syslog/mail.log (the /mail.log was missing...).
+- Cleaned inclusion of sys/socket.h vs. conditional SHUT_RDWR definition in 
+  "config.h":
+  * always include config.h from prngd.h, no additional need to include it
+    seperatly any longer.
+  * make sure that prngd.h includes <sys/socket.h>, so that SHUT_RDWR is
+    defined before "config.h" defines it, if missing.
+
+2001/01/16
+- bsd-daemon.c (as of openssh) did not use ANSI C function definition but the
+  old k&r style. prngd.h with the prototype for daemon() was not included
+  in bsd-daemon.c.
+
+2001/01/16	== Released 0.3.1 ==
+
+2001/01/16
+- No further input about the UNIXWARE 7 problem from George Walsh (after
+  sending him the 2001/01/13 pre-release). Add remark about "bind(): invalid
+  argument" problem to 00README and release 0.3.1 because of the other changes
+  and bugfixes.
+
+2001/01/13
+- Finished cleanup of the prngd startup code. The check for the properties of
+  the socket-to-be (or the socket of the daemon-to-be-killed) in the filesystem
+  and for daemons running on it is now intregrated and consistent.
+
+2001/01/12
+- Before calling bind(), shutdown() the socket used for testing for an
+  already running daemon. Recreate the socket and the sockaddr_un structure.
+- Bugreport from James Bourne <jbourne@MtRoyal.AB.CA>:
+  * When using --kill mode, the prngd command does not finish correctly
+    when no daemon is listening on a socket listed.
+  This bug was introduced in the 0.3.0 of prngd. Prngd now supports killing
+  several daemons in a loop. When no daemon is listening, prngd will now
+  "continue" to the next socket listed. After the loop has finished, prngd
+  is now cleanly terminated.
+
+2001/01/11
+- Moved NEXTSTEP3 special handling into config.h.
+- Added changes for UNIXWARE 7 as supplied by
+    George Walsh <gjmwalsh@netscape.net>
+  There is an open issue with PRNGD not working: when bind() is called,
+  it failes with EINVAL. The manual page states that this is either
+  caused by an invalid size given in the namelen parameter given to bind
+  (unlikely) or caused by the address (file system entry) already being
+  available (more likely). If the last reason is true, the remove() to
+  free up the space in the file system did fail; I did not check the reason
+  until now, since there is nothing PRNGD can do in this case anyway.
+- Added more precise checking on the socket to be created on startup.
+  * If the location in the filesystem cannot be reached via stat(), do not
+    continue.
+  * If the location of the socket is currently used by anything else then
+    an unused socket (e.g. a regular file or directory), don't touch it.
+  * Only then remove the (unused) socket to make place for the new one to
+    be created.
+
+2001/01/04
+- Changed all places containing "1024" for the pool size of the OpenSSL PRNG
+  to use the new macro PRNGD_STATE_SIZE instead.
+- Changed location of "-I." preprocessor flag from the system definitions to
+  a common place (must be there on all platforms anyway). Renamed DEFINES
+  to DEFS to be more compatible with what autoconf ones expects to find!
+
+2000/12/27	== Released 0.3.0 ==
+
+2000/12/27
+- Bugfix: when a gatherer process (child) is finished, status information was
+  added to the pool from the signal handling subroutined. This interrupt driven
+  adding could interfere with another rand_add() operation currently active.
+  * There is a small loss of entropy as collected random bits may be
+    overwritten. The percentage of loss is however very small and is not
+    a problem by itself. (The user being affected reported around one failure
+    every other day, so the percentage is extremely small).
+  * This bug can however trigger an "assert()" call from
+     openssl/crypto/rand/md_rand.c:ssleay_rand_add()
+    when not compiled with "thread" support. This results in an abort() and
+    failure of PRNGD.
+    When compiled with thread support, the assert() condition is not tested,
+    so the problem simply goes by unnoted! All platforms I have been testing
+    on before had thread support enabled, TRU64 was the first one to trigger
+    this problem.
+  * Problem reported including the backtrace needed to finally track this
+    bug down by James Bourne <jbourne@mtroyal.ab.ca>.
+
+2000/12/26
+- Allow to serve more than one socket: prngd now understands several sockets
+  given on the command line. All are fed from the same pool. This allows e.g.
+  to have a socket inside a chroot jail and one outside without running two
+  distinct processes.
+  When more than one socket is given to the kill option, all sockets are
+  tried but no abort appears on failure (in case one might try to kill the
+  same daemon via several sockets, already the first one should succeed and
+  the other sockets should fail).
+
+2000/12/06	== Released 0.2.6 ==
+
+2000/12/06
+- Compiler options were not consistent, some platforms had "-g" for debugging,
+  some "-O" for optimization. Now use "optimized, no debugging support" for
+  all platforms as default.
+- Added a 00DESIGN document explaining roughly the idea behind PRNGD.
+
+2000/12/05
+- Support for Tru64 UNIX provided by James Bourne <jbourne@mtroyal.ab.ca>
+  * configuration file for Tru64
+  * defines for Tru64 in config.h
+  * Makefile Changes for Tru64
+
+2000/09/20	== Released 0.2.5 ==
+
+2000/09/20
+- PRNGD did not compile on NeXTstep, since I moved around the items Michael
+  Weiser sent and broke it during the operation.
+  Don't declare system functions in config.h, rather include the correct
+  libc.h in the source files instead.
+- Fixed too high entropy estimates for NeXTstep and IRIX (Michael Weiser).
+
+2000/09/19	== Released 0.2.4 ==
+
+2000/09/19
+- PRNGD entropy command files and config.h/Makefile additions for NeXTstep 3
+  and IRIX 6.5 have been provided by Michael Weiser
+  <michael@weiser.saale-net.de>:
+  * Gathering commands are in prngd.conf.nextstep-33 and prngd.conf.irix-65.
+  * On NeXTstep, sizeof is long int, so printf() statements must e %ld.
+
+2000/08/15	== Released 0.2.3 ==
+
+2000/08/15
+- Changed rand_bytes, so that whenever entropy is requested, the complete
+  entropy pool is completely mixed one time and the read-pointer is moved
+  to an "arbitrary" position. The data obtained during these operations is
+  discarded.
+  By perfoming these operations, somebody trying to guess the pool state from
+  consequtively retrieving random bytes forces a stronger oposition :-)
+
+2000/08/08	== Released 0.2.2 ==
+
+2000/08/08
+- Checked in final open issues from Louis LeBlanc <leblanc@mirror-image.com>:
+  * Gathering commands are in prngd.conf.solaris-26
+  * On Solaris pid_t is long int, so printf() statements must be %ld.
+  * Make gcc shut up about variables that "might be used uninitialized in this
+    function".
+
+2000/08/04	== Released 0.2.1 ==
+
+2000/08/04
+- Another bug popped up for Louis LeBlanc <leblanc@mirror-image.com>.
+  Now the segmentation fault is fixed, but the problematic gatherer
+  is called again and again and again, because the step to the next
+  gatherer is only performed for normal close. Fixed.
+  * I never experienced unclean shutdown, so this went by rather badly
+    tested.
+
+2000/08/04	== Released 0.2.0 ==
+
+2000/08/03
+- Received report from Louis LeBlanc <leblanc@mirror-image.com> with some
+  porting hints for Solaris 2.6:
+- Added a typecast to (struct sockaddr *) in serverloop.c for accept().
+- On Solaris pid_t is long (HP-UX is int32_t, Linux 2.2 is int). Hence
+  for Solaris, I would need the %ld format for printout. I am not sure
+  on how to deal with this in a portable manner.
+- Louis LeBlanc also reports about a Segmentation Fault he gets. I cannot
+  reproduce this on HP-UX or Linux, my PRNGDs are up and running since
+  2000/07/03... Have to wait for more input from Louis LeBlanc.
+  * Just received a line number: At this place the FD_SET rfds is checked
+    against gather_fd. It is possible that gather_fd was just set to -1
+    and this was not caught. Fixed.
+- Fixed a bug in the initial seeding: Actually when starting up, PRNGD
+  should have called all gatherers once to get initial seeding. Unfortunately
+  the check was missing so gatherers were called as in normal operation.
+- Made startup behaviour more consistent: When no entropy is available
+  in the seed-save file, don't bail out but continue running. Our job _is_
+  to collect entropy.
+
+2000/07/21
+- Received compiler flags for Solaris 7 compilation with gcc from
+  Phil Howard <phil-openssh-unix-dev@ipal.net>.
+
+2000/07/03	== Released 0.1.0 ==

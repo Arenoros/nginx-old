@@ -1,0 +1,62 @@
+# entropy gathering commands
+# NetBSD 1.x, contributed by Tim Roden <othyro@freeshell.org>
+# Format is: "program-name args" path rate
+# The "rate" represents the number of bits of usuable entropy per
+# byte of command output. Be conservative.
+# Some comments on the comments:
+# Depending on the usage of your system, some commands may not produce
+# output that varies significantly over time, so those lines are commented.
+# Uncomment them if you feel the output will gather decent entropy.
+# Other lines are double-commented based on the presence of those files
+# on your NetBSD system. Adjust the rates as you see fit.
+
+#"ls -alni /tmp" /bin/ls 0.02
+#"ls -alni /var/tmp" /bin/ls 0.02
+##"ls -alni /var/mail" /bin/ls 0.02
+##"ls -alni /var/spool/postfix" /bin/ls 0.02
+##"ls -alni /var/spool/clientmqueue" /bin/ls 0.02
+#"ifconfig -a" /sbin/ifconfig 0.02
+"pstat -f" /usr/sbin/pstat 0.02
+"netstat -an" /usr/bin/netstat 0.02
+"netstat -in" /usr/bin/netstat 0.02
+"netstat -ina" /usr/bin/netstat 0.02
+#"netstat -rn" /usr/bin/netstat 0.02
+"netstat -s" /usr/bin/netstat 0.02
+"netstat -ia" /usr/bin/netstat 0.02
+"netstat -is" /usr/bin/netstat 0.02
+"netstat -m" /usr/bin/netstat 0.02
+"ps -aux" /bin/ps 0.02
+"ps -wax" /bin/ps 0.02
+"ps -laxww" /bin/ps 0.02
+"w" /usr/bin/w 0.02
+"who" /usr/bin/who 0.02
+"who -HuT" /usr/bin/who 0.02
+#"last" /usr/bin/last 0.02
+##"ac -p" /usr/sbin/ac 0.02
+##"ac -d" /usr/sbin/ac 0.02
+##"lastcomm" /usr/bin/lastcomm 0.02
+##"sa -a" /usr/sbin/sa 0.02
+##"ipfstat" /usr/sbin/ipfstat 0.02
+"df" /bin/df 0.02
+"df -i" /bin/df 0.02
+"uptime" /usr/bin/uptime 0.02
+"vmstat" /usr/bin/vmstat 0.02
+"vmstat -s" /usr/bin/vmstat 0.02
+#"ipcs" /usr/bin/ipcs 0.02
+#"arp -a" /usr/sbin/arp 0.02
+#"route show" /sbin/route 0.02
+#"route -n show" /sbin/route 0.02
+#"finger" /usr/bin/finger 0.02
+#"finger -l" /usr/bin/finger 0.02
+"du -a /var/log" /usr/bin/du 0.02
+#"tail -200 /var/log/aculog" /usr/bin/tail 0.02
+"tail -200 /var/log/authlog" /usr/bin/tail 0.02
+##"tail -200 /var/log/conslog" /usr/bin/tail 0.02
+##"tail -200 /var/log/ipmon" /usr/bin/tail 0.02
+"tail -200 /var/log/maillog" /usr/bin/tail 0.02
+#"tail -200 /var/log/messages" /usr/bin/tail 0.02
+##"tail -200 /var/log/httpd/access_log" /usr/bin/tail 0.02
+##"tail -200 /var/log/httpd/error_log" /usr/bin/tail 0.02
+##"tail -200 /var/log/httpd/php_log" /usr/bin/tail 0.02
+##"tail -200 /var/log/httpd/ssl_engine_log" /usr/bin/tail 0.02
+##"tail -200 /var/log/httpd/ssl_request_log" /usr/bin/tail 0.02

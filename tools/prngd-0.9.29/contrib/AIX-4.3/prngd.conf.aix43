@@ -1,0 +1,65 @@
+# entropy gathering commands
+
+# Format is: "program-name args" path rate
+
+# The "rate" represents the number of bits of usuable entropy per 
+# byte of command output. Be conservative.
+
+"ls -alniR /var/adm" /usr/bin/ls 0.03
+"ls -alni /var/mail" /usr/bin/ls 0.01
+"ls -alni /tmp" /usr/bin/ls 0.02
+
+"arp -a" /usr/sbin/arp 0.02
+
+"ifconfig -a" /usr/sbin/ifconfig 0.01
+
+"ps laxww" /usr/bin/ps 0.03
+"ps -al" /usr/bin/ps 0.03
+"ps -efl" /usr/bin/ps 0.03
+
+"w" /usr/bin/w 0.05
+
+"who -i" /usr/bin/who 0.01
+
+"last -50" /usr/bin/last 0.01
+
+"df" /usr/bin/df 0.01
+
+"uptime" /usr/bin/uptime 0.01
+
+"ipcs -a" /usr/bin/ipcs 0.01
+
+"errpt -a" /usr/bin/errpt 0.01
+"tail -50 /usr/adm/messages" /usr/bin/tail 0.01
+"tail -50 /var/adm/SPlogs/SPdaemon.log" /usr/bin/tail 0.01
+"tail -50 /usr/es/adm/cluster.log" /usr/bin/tail 0.01
+"tail -50 /usr/adm/cluster.log" /usr/bin/tail 0.01
+"tail -50 /var/adm/cluster.log" /usr/bin/tail 0.01
+"tail -50 /var/adm/ras/conslog" /usr/bin/tail 0.01
+
+
+"vmstat" /usr/bin/vmstat 0.02
+"iostat" /usr/bin/iostat 0.02
+"vmstat -s" /usr/bin/vmstat 0.01
+"vmstat -i" /usr/bin/vmstat 0.01
+"vmstat -f" /usr/bin/vmstat 0.2
+"netstat -an" /usr/sbin/netstat 0.05
+"netstat -in" /usr/sbin/netstat 0.05
+"netstat -m" /usr/sbin/netstat 0.05
+"netstat -rn" /usr/sbin/netstat 0.02
+"netstat -s" /usr/sbin/netstat 0.02
+
+#"snmpinfo -m get -h localhost 1.3.6.1.2.1.7.1.0" /usr/sbin/snmpinfo 0.3
+#"snmpinfo -m get -h localhost 1.3.6.1.2.1.7.4.0" /usr/sbin/snmpinfo 0.3
+#"snmpinfo -m get -h localhost 1.3.6.1.2.1.4.3.0" /usr/sbin/snmpinfo 0.3
+#"snmpinfo -m get -h localhost 1.3.6.1.2.1.6.10.0" /usr/sbin/snmpinfo 0.3
+#"snmpinfo -m get -h localhost 1.3.6.1.2.1.6.11.0" /usr/sbin/snmpinfo 0.3
+#"snmpinfo -m get -h localhost 1.3.6.1.2.1.6.13.0" /usr/sbin/snmpinfo 0.3
+#"snmpinfo -m get -h localhost 1.3.6.1.2.1.5.1.0" /usr/sbin/snmpinfo 0.3
+#"snmpinfo -m get -h localhost 1.3.6.1.2.1.5.3.0" /usr/sbin/snmpinfo 0.3
+
+"pstat -p" /usr/sbin/pstat 0.1
+"pstat -S" /usr/sbin/pstat 0.1
+"pstat -A" /usr/sbin/pstat 0.1
+"pstat -t" /usr/sbin/pstat 0.1
+"tcpdump -c 5 -efvvx" /usr/sbin/tcpdump 0.5

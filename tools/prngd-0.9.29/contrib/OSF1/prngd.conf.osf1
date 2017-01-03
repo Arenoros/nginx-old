@@ -1,0 +1,42 @@
+# entropy gathering commands
+
+# Format is: "program-name args" path rate
+
+# The "rate" represents the number of bits of usuable entropy per 
+# byte of command output. Be conservative.
+
+"ls -alni /var/adm" bin/ls 0.02
+"ls -alni /var/spool/mail" /bin/ls 0.002
+"ls -alni /proc" /bin/ls 0.02
+"ls -alni /tmp" /bin/ls 0.02
+
+"netstat -an" /usr/sbin/netstat 0.02
+"netstat -in" /usr/sbin/netstat 0.02
+"netstat -rn" /usr/sbin/netstat 0.02
+"netstat -s" /usr/sbin/netstat 0.02
+
+"ps laxww" /bin/ps 0.03
+"ps -al" /bin/ps 0.03
+"ps -efl" /bin/ps 0.03
+
+"w" /usr/bin/w 0.05
+
+"who -l" /usr/bin/who 0.01
+
+"last" /usr/bin/last 0.01
+
+"df" /bin/df 0.002
+"df -i" /bin/df 0.001
+
+"vmstat" /usr/bin/vmstat 0.01
+"uptime" /usr/bin/uptime 0.002
+
+"ipcs -a" /usr/bin/ipcs 0.002
+
+"tail -200 /var/adm/messages" /usr/bin/tail 0.01
+"tail -200 /var/adm/syslog.dated/current/auth.log" /usr/bin/tail 0.01
+"tail -200 /var/adm/syslog.dated/current/daemon.log" /usr/bin/tail 0.01
+"tail -200 /var/adm/syslog.dated/current/kern.log" /usr/bin/tail 0.01
+"tail -200 /var/adm/syslog.dated/current/lpr.log" /usr/bin/tail 0.01
+"tail -200 /var/adm/syslog.dated/current/mail.log" /usr/bin/tail 0.01
+"tail -200 /var/adm/syslog.dated/current/syslog.log" /usr/bin/tail 0.01

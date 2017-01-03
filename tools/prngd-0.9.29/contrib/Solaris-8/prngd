@@ -1,0 +1,43 @@
+#!/bin/sh
+#
+# Start/Stop the PRNG entropy-gathering daemon
+# For Solaris 8
+#
+# Links should be set up using something of the form:
+#
+# ln -s /usr/local/init.d/prngd /etc/rc0.d/K30prngd
+# ln -s /usr/local/init.d/prngd /etc/rc1.d/K30prngd
+# ln -s /usr/local/init.d/prngd /etc/rc2.d/S20prngd
+# ln -s /usr/local/init.d/prngd /etc/rcS.d/K30prngd
+#
+# Joseph Walton, 2001-08-06
+
+DESC='PRNGD entropy-gathering daemon'
+
+PRNGD=/usr/local/sbin/prngd
+SOCKETDIR=/var/run/opt
+SOCKET=$SOCKETDIR/prngd-socket
+
+case $1 in
+'start')
+	mkdir -p $SOCKETDIR
+	COMMAND="$PRNGD $SOCKET"
+	CONCLUSION='started'
+	;;
+
+'stop')
+	COMMAND="$PRNGD $SOCKET -k"
+	CONCLUSION='stopped'
+	;;
+
+*)
+	echo "Usage: $0 { start | stop }"
+	exit 1
+	;;
+esac
+
+if $COMMAND; then
+	echo $DESC $CONCLUSION
+else
+	echo "$DESC not $CONCLUSION."
+fi
