@@ -43,23 +43,11 @@ if test -z "$NGX_PLATFORM"; then
 
 else
     echo "building for $NGX_PLATFORM"
-    NGX_SYSTEM=$NGX_PLATFORM
-
+    
     NGX_CROSSBUILD=yes
-    case "$NGX_PLATFORM" in
-        QNX:*:x86)
-            NGX_SYSTEM=QNX
-            NGX_MACHINE=x86
-        ;;
-        QNX:*:arm)
-            NGX_SYSTEM=QNX
-            NGX_MACHINE=arm
-        ;;
-        Linux:*:arm)
-            NGX_SYSTEM=Linux
-            NGX_MACHINE=arm
-        ;;
-    esac
+    NGX_SYSTEM=$(echo $NGX_PLATFORM | cut -d: -f1)
+    NGX_SYSTEM_VERSION=$(echo $NGX_PLATFORM | cut -d: -f2)
+    NGX_MACHINE=$(echo $NGX_PLATFORM | cut -d: -f3)
 fi
 
 . auto/cc/conf

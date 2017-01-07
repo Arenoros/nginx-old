@@ -1,2 +1,11 @@
 update nginx to 1.11.8
-update openssl to 1.1.1
+add tools:
+  prngd-0.9.29
+add to src libs:
+  zlib-1.2.8 (fix for windows with unistd.h)
+  pcre-8.39
+add submodule openssl
+change branch openssl to OpenSSL_1_1_0-stable
+add modules:
+  nginx-let-module
+add builds for QNX
