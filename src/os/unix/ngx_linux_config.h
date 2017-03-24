@@ -140,5 +140,3 @@ extern char **environ;
 #endif	/* NGX_CROSSBUILD */
 
 #endif /* _NGX_LINUX_CONFIG_H_INCLUDED_ */
-
-#endif /* _NGX_LINUX_CONFIG_H_INCLUDED_ */

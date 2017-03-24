@@ -106,13 +106,12 @@ else
                           re = pcre_compile(NULL, 0, NULL, 0, NULL);
                           if (re == NULL) return 1"
 
-		feature_dir="$PWD/lib/$NGX_SYSTEM/$NGX_MACHINE/pcre/"
-		if [ -d "$feature_dir" ]; then
-            ngx_feature="PCRE library in $feature_dir"
-			
-			ngx_feature_path="$feature_dir/include"
-            ngx_feature_libs="-L/$feature_dir/lib $ngx_feature_libs"
-		fi
+	feature_dir="$PWD/lib/$NGX_SYSTEM/$NGX_MACHINE/pcre/"
+	if [ -d "$feature_dir" ]; then
+             ngx_feature="PCRE library in $feature_dir"	
+	     ngx_feature_path="$feature_dir/include"
+             ngx_feature_libs="-L/$feature_dir/lib $ngx_feature_libs"
+	fi
         . auto/feature
 
         if [ $ngx_found = no ]; then

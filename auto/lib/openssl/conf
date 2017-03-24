@@ -62,16 +62,15 @@ else
         ngx_feature_libs="-lssl -lcrypto $NGX_LIBDL"
         ngx_feature_test="SSL_CTX_set_options(NULL, 0)"
 
-		feature_dir="$PWD/lib/$NGX_SYSTEM/$NGX_MACHINE/openssl/"
-		if [ -d "$feature_dir" ]; then
+        feature_dir="$PWD/lib/$NGX_SYSTEM/$NGX_MACHINE/openssl/"
+        if [ -d "$feature_dir" ]; then
             ngx_feature="OpenSSL library in $feature_dir"
-			
-			ngx_feature_path="$feature_dir/include"
+            ngx_feature_path="$feature_dir/include"
             ngx_feature_libs="-L/$feature_dir/lib $ngx_feature_libs"
-			if [ $NGX_RPATH = YES ]; then
-                ngx_feature_libs="-R/$openssl_dir/lib $ngx_feature_libs"
+            if [ $NGX_RPATH = YES ]; then
+                 ngx_feature_libs="-R/$openssl_dir/lib $ngx_feature_libs"
             fi
-		fi
+        fi
         . auto/feature
 
         if [ $ngx_found = no ]; then
