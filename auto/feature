@@ -32,6 +32,7 @@ fi
 cat << END > $NGX_AUTOTEST.c
 
 $SYS_TYPES
+#include <stddef.h>
 $NGX_INCLUDE_UNISTD_H
 $ngx_feature_incs
 
@@ -42,7 +43,6 @@ int main(void) {
 
 END
 
-
 ngx_test="$CC $CC_TEST_FLAGS $CC_AUX_FLAGS $ngx_feature_inc_path \
           -o $NGX_AUTOTEST $NGX_AUTOTEST.c $NGX_TEST_LD_OPT $ngx_feature_libs"
 
@@ -51,7 +51,7 @@ ngx_feature_inc_path=
 eval "/bin/sh -c \"$ngx_test\" >> $NGX_AUTOCONF_ERR 2>&1"
 
 
-if [ -x $NGX_AUTOTEST ]; then
+if [ -a $NGX_AUTOTEST ]; then
 
     # cross-built autotest cannot be run on host platform
     # just assume "found" if autotest can be built with the feature
